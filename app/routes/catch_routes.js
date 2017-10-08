@@ -27,4 +27,23 @@ module.exports = function (app, db) {
       })
       .catch(err => handle(err, res))
   })
+
+  // update
+  app.patch('/catches/:id', (req, res) => {
+    Catch.findById(req.params.id)
+      .then(record => record.update(req.body))
+      .then(record => {
+        console.log(record)
+        res.sendStatus(204)
+      })
+      .catch(err => handle(err, res))
+  })
+
+  // destroy
+  app.delete('/catches/:id', (req, res) => {
+    Catch.findById(req.params.id)
+      .then(record => record.remove())
+      .then(() => res.sendStatus(204))
+      .catch(err => handle(err, res))
+  })
 }
