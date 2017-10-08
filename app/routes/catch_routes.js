@@ -15,6 +15,14 @@ module.exports = function (app, db) {
       .catch(err => handle(err, res))
   })
 
+  // show
+  app.get('/catches/:id', (req, res) => {
+    Catch.findById(req.params.id)
+      .then(record => record.toJSON())
+      .then(record => res.status(200).json(record))
+      .catch(err => handle(err, res))
+  })
+
   // index
   app.get('/catches', (req, res) => {
     Catch.find()
