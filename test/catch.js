@@ -11,7 +11,7 @@ let should = chai.should()
 chai.use(chaiHttp)
 
 describe('Catches', () => {
-  beforeEach(done => {
+  before(done => {
     Catch.remove({}, e => {
       done()
     })
@@ -88,7 +88,58 @@ describe('Catches', () => {
         .end((e, res) => {
           res.should.have.status(201)
           res.body.should.be.a('object')
+          res.body.should.have.property('_id')
           res.body.species.should.eql(validCatch.species)
+          done()
+        })
+    })
+  })
+
+  describe('PATCH /catches/:id', () => {
+    let catchId
+
+    const example = {
+      species: 'boringfish',
+      date: '2/2/2002',
+      position: {
+        latitude: 99,
+        longitude: 99
+      }
+    }
+
+    const fields = {
+      species: 'editfish',
+      position: {
+        latitude: 10,
+        longitude: 15
+      }
+    }
+
+    before(async function () {
+      await Catch.create(example)
+        .then(record => {
+          catchId = record._id
+        })
+    })
+
+    it('it should update fields when PATCHed', done => {
+      chai.request(server)
+        .patch(`/catches/${catchId}`)
+        .send(fields)
+        .end((e, res) => {
+          res.should.have.status(204)
+          done()
+        })
+    })
+
+    it('shows the updated resource when fetched with GET', done => {
+      chai.request(server)
+        .get(`/catches/${catchId}`)
+        .end((e, res) => {
+          res.should.have.status(200)
+          res.body.should.be.a('object')
+          res.body.species.should.eql(fields.species)
+          res.body.position.latitude.should.eql(fields.position.latitude)
           done()
         })
     })

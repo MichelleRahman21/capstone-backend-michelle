@@ -6,10 +6,6 @@ module.exports = function (app, db) {
   app.post('/catches', (req, res) => {
     Catch.create(req.body)
       .then(record => {
-        console.log(record)
-        return record
-      })
-      .then(record => {
         res.status(201).json(record.toJSON())
       })
       .catch(err => handle(err, res))
@@ -29,21 +25,16 @@ module.exports = function (app, db) {
       .then(records => {
         return records.map(record => record.toJSON())
       })
-      .then(records => {
-        console.log(records)
-        res.status(200).json(records)
-      })
+      .then(records => res.status(200).json(records))
       .catch(err => handle(err, res))
   })
 
   // update
   app.patch('/catches/:id', (req, res) => {
     Catch.findById(req.params.id)
-      .then(record => record.update(req.body))
-      .then(record => {
-        console.log(record)
-        res.sendStatus(204)
-      })
+      .then(record => Object.assign(record, req.body))
+      .then(record => record.save())
+      .then(() => res.sendStatus(204))
       .catch(err => handle(err, res))
   })
 
