@@ -32,14 +32,14 @@ describe('Catches', () => {
         .get('/catches')
         .end((e, res) => {
           res.should.have.status(200)
-          res.body.should.be.a('array')
-          res.body.length.should.be.eql(0)
+          res.body.catches.should.be.a('array')
+          res.body.catches.length.should.be.eql(0)
           done()
         })
     })
   })
 
-  describe('DELETE /catches', () => {
+  describe('DELETE /catches/:id', () => {
     let catchId
 
     before(async function () {
@@ -57,8 +57,6 @@ describe('Catches', () => {
           done()
         })
     })
-
-    it('should delete the spe')
   })
 
   describe('POST /catches', () => {
@@ -72,7 +70,7 @@ describe('Catches', () => {
       }
       chai.request(server)
         .post('/catches')
-        .send(noSpecies)
+        .send({ catch: noSpecies })
         .end((e, res) => {
           res.should.have.status(422)
           res.should.be.a('object')
@@ -93,7 +91,7 @@ describe('Catches', () => {
       }
       chai.request(server)
         .post('/catches')
-        .send(partialPosition)
+        .send({ catch: partialPosition })
         .end((e, res) => {
           res.should.have.status(422)
           res.should.be.a('object')
@@ -115,12 +113,13 @@ describe('Catches', () => {
       }
       chai.request(server)
         .post('/catches')
-        .send(validCatch)
+        .send({ catch: validCatch })
         .end((e, res) => {
           res.should.have.status(201)
           res.body.should.be.a('object')
-          res.body.should.have.property('_id')
-          res.body.species.should.eql(validCatch.species)
+          res.body.should.have.property('catch')
+          res.body.catch.should.have.property('species')
+          res.body.catch.species.should.eql(validCatch.species)
           done()
         })
     })
@@ -147,7 +146,7 @@ describe('Catches', () => {
     it('should update fields when PATCHed', done => {
       chai.request(server)
         .patch(`/catches/${catchId}`)
-        .send(fields)
+        .send({ catch: fields })
         .end((e, res) => {
           res.should.have.status(204)
           done()
@@ -160,8 +159,8 @@ describe('Catches', () => {
         .end((e, res) => {
           res.should.have.status(200)
           res.body.should.be.a('object')
-          res.body.species.should.eql(fields.species)
-          res.body.position.latitude.should.eql(fields.position.latitude)
+          res.body.catch.species.should.eql(fields.species)
+          res.body.catch.position.latitude.should.eql(fields.position.latitude)
           done()
         })
     })
