@@ -11,6 +11,15 @@ let should = chai.should()
 chai.use(chaiHttp)
 
 describe('Catches', () => {
+  const example = {
+    species: 'boringfish',
+    date: '2/2/2002',
+    position: {
+      latitude: 99,
+      longitude: 99
+    }
+  }
+
   before(done => {
     Catch.remove({}, e => {
       done()
@@ -18,7 +27,7 @@ describe('Catches', () => {
   })
 
   describe('GET /catches', () => {
-    it('it should get all the catches', done => {
+    it('should get all the catches', done => {
       chai.request(server)
         .get('/catches')
         .end((e, res) => {
@@ -30,8 +39,30 @@ describe('Catches', () => {
     })
   })
 
+  describe('DELETE /catches', () => {
+    let catchId
+
+    before(async function () {
+      await Catch.create(example)
+        .then(record => {
+          catchId = record._id
+        })
+    })
+
+    it('should return status code 204', done => {
+      chai.request(server)
+        .delete('/catches/' + catchId)
+        .end((e, res) => {
+          res.should.have.status(204)
+          done()
+        })
+    })
+
+    it('should delete the spe')
+  })
+
   describe('POST /catches', () => {
-    it('it should not POST a catch without a species', done => {
+    it('should not POST a catch without a species', done => {
       let noSpecies = {
         date: '08/12/2015',
         position: {
@@ -52,7 +83,7 @@ describe('Catches', () => {
         })
     })
 
-    it('it should not POST a catch with partial position data', done => {
+    it('should not POST a catch with partial position data', done => {
       let partialPosition = {
         species: 'tuna',
         date: '08/12/2015',
@@ -73,7 +104,7 @@ describe('Catches', () => {
         })
     })
 
-    it('it should POST a catch with the correct params', done => {
+    it('should POST a catch with the correct params', done => {
       let validCatch = {
         species: 'blowfish',
         date: '1/1/2001',
@@ -98,15 +129,6 @@ describe('Catches', () => {
   describe('PATCH /catches/:id', () => {
     let catchId
 
-    const example = {
-      species: 'boringfish',
-      date: '2/2/2002',
-      position: {
-        latitude: 99,
-        longitude: 99
-      }
-    }
-
     const fields = {
       species: 'editfish',
       position: {
@@ -122,7 +144,7 @@ describe('Catches', () => {
         })
     })
 
-    it('it should update fields when PATCHed', done => {
+    it('should update fields when PATCHed', done => {
       chai.request(server)
         .patch(`/catches/${catchId}`)
         .send(fields)
