@@ -1,4 +1,6 @@
 const express = require('express')
+const passport = require('passport')
+
 const handle = require('../../lib/error_handler')
 const Catch = require('../models/catch')
 
@@ -15,14 +17,15 @@ router.post('/catches', (req, res) => {
 })
 
 // show
-router.get('/catches/:id', (req, res) => {
+router.get('/catches/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
+  console.log('USER HERE', req.user)
   Catch.findById(req.params.id)
     .then(record => res.status(200).json({ catch: record.toJSON() }))
     .catch(err => handle(err, res))
 })
 
 // index
-router.get('/catches', (req, res) => {
+router.get('/catches', passport.authenticate('jwt', { session: false }), (req, res) => {
   Catch.find()
     .then(records => {
       return records.map(record => record.toJSON())
