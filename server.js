@@ -29,7 +29,7 @@ const app = express()
 console.log('nodeenv here', app.get('env'))
 
 // define port for API to run on
-const port = 4741
+const port = process.env.PORT || 4741
 
 // add `bodyParser` middleware which will parse JSON requests into
 // JS objects before they reach the route files.
