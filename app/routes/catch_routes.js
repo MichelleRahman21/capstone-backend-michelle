@@ -1,7 +1,8 @@
 const express = require('express')
-const Catch = require('../models/catch')
 const handle = require('../../lib/error_handler')
+const Catch = require('../models/catch')
 
+// instantiate a router (mini app that only handles routes)
 const router = express.Router()
 
 // create
