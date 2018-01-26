@@ -2,6 +2,7 @@ const express = require('express')
 const handle = require('../../lib/error_handler')
 const User = require('../models/user')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
@@ -23,11 +24,23 @@ router.post('/sign-up', (req, res) => {
 
 // sign-in
 router.post('/sign-in', (req, res) => {
+  const pw = req.body.credentials.password
+
   User.findOne({ email: req.body.credentials.email })
-    .then(user => bcrypt.compare(req.body.credentials.password, user.hashedPassword))
-    .then(correctPassword => {
-      if (correctPassword) {
-        res.status(201).send('success (this is a placeholder)')
+    .then(user => {
+      return {
+        correctPassword: bcrypt.compare(pw, user.hashedPassword),
+        user
+      }
+    })
+    .then(data => {
+      if (data.correctPassword) {
+        const payload = { id: data.user.id }
+        const token = jwt.sign(payload, 'TODO GRAB ME FROM .ENV')
+        res.status(201).json({
+          email: data.user.email,
+          token
+        })
       } else {
         res.status(401).send('fail')
       }
