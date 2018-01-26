@@ -6,7 +6,13 @@ const mongoose = require('mongoose')
 // require route files
 const catchRoutes = require('./app/routes/catch_routes')
 const userRoutes = require('./app/routes/user_routes')
+
+// require database configuration logic
+// `db` will be the actual Mongo URI as a string
 const db = require('./config/db')
+
+// require configured passport authentication middleware
+const auth = require('./lib/auth')
 
 // establish database connection
 mongoose.Promise = global.Promise
@@ -19,6 +25,9 @@ const app = express()
 
 // define port for API to run on
 const port = process.env.PORT || 4741
+
+// register passport authentication middleware
+app.use(auth)
 
 // add `bodyParser` middleware which will parse JSON requests into
 // JS objects before they reach the route files.
