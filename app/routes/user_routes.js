@@ -17,22 +17,22 @@ router.post('/sign-up', (req, res) => {
     })
     .then(user => User.create(user))
     .then(user => user.toJSON())
-    .then(user => res.status(201).json(user))
+    .then(user => res.status(201).json({user}))
     .catch(err => handle(err, res))
 })
 
-//sign-in
+// sign-in
 router.post('/sign-in', (req, res) => {
-  const user = User.find({ email: req.body.credentials.email })
-
-  bcrypt.compare(req.body.credentials.password, user.hashedPassword)
+  User.findOne({ email: req.body.credentials.email })
+    .then(user => bcrypt.compare(req.body.credentials.password, user.hashedPassword))
     .then(correctPassword => {
       if (correctPassword) {
         res.status(201).send('success (this is a placeholder)')
       } else {
-        res.status(401)
+        res.status(401).send('fail')
       }
     })
+    .catch(err => handle(err, res))
 })
 
 module.exports = router
