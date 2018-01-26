@@ -36,7 +36,7 @@ router.post('/sign-in', (req, res) => {
     .then(data => {
       if (data.correctPassword) {
         const payload = { id: data.user.id }
-        const token = jwt.sign(payload, 'TODO GRAB ME FROM .ENV')
+        const token = jwt.sign(payload, 'TODO GRAB ME FROM .ENV', { expiresIn: '1h' })
         res.status(201).json({
           email: data.user.email,
           token
