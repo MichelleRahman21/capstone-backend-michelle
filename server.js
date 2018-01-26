@@ -6,30 +6,19 @@ const mongoose = require('mongoose')
 // require route files
 const catchRoutes = require('./app/routes/catch_routes')
 const userRoutes = require('./app/routes/user_routes')
-
-const localDbs = {
-  dev: 'mongodb://cpearce31:7981@ds113505.mlab.com:13505/anglers-notes',
-  test: 'mongodb://cpearce31:7981@ds013495.mlab.com:13495/anglers-notes-test'
-}
-
-// select DB based on whether a test file was executed before `server.js`
-const localDb = process.env.TESTENV ? localDbs.test : localDbs.dev
-
-const currentDb = process.env.MONGODB_URI || localDb
+const db = require('./config/db')
 
 // establish database connection
 mongoose.Promise = global.Promise
-mongoose.connect(currentDb, {
+mongoose.connect(db, {
   useMongoClient: true
 })
 
 // instantiate express application object
 const app = express()
 
-console.log('nodeenv here', app.get('env'))
-
 // define port for API to run on
-const port = 4741
+const port = process.env.PORT || 4741
 
 // add `bodyParser` middleware which will parse JSON requests into
 // JS objects before they reach the route files.
