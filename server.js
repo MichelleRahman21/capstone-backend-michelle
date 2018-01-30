@@ -14,6 +14,17 @@ const db = require('./config/db')
 // require configured passport authentication middleware
 const auth = require('./lib/auth')
 
+// load secret keys for signing tokens from .env
+const dotenv = require('dotenv')
+dotenv.config()
+
+// select a key based on the current environment
+if (process.env.TESTENV) {
+  process.env.KEY = process.env.SECRET_KEY_BASE_TEST
+} else {
+  process.env.KEY = process.env.SECRET_KEY_BASE_DEVELOPMENT
+}
+
 // establish database connection
 mongoose.Promise = global.Promise
 mongoose.connect(db, {
