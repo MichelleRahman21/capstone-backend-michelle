@@ -14,6 +14,7 @@ const requireToken = passport.authenticate('jwt', { session: false })
 
 // create
 router.post('/examples', requireToken, (req, res) => {
+  req.body.example.owner = req.user.id
   Example.create(req.body.example)
     .then(record => {
       res.status(201).json({ example: record.toJSON() })
@@ -40,10 +41,17 @@ router.get('/examples', requireToken, (req, res) => {
 
 // update
 router.patch('/examples/:id', requireToken, (req, res) => {
+  delete req.body.example.owner // disallow owner reassignment
+
   Example.findById(req.params.id)
     // Object.assign merges whatever changeds are in req.body
     // into the record found on the previous line
-    .then(record => Object.assign(record, req.body.example))
+    .then(record => {
+      if (!req.user._id.equals(record.owner)) {
+        throw new Error({name: 'OwnershipError'})
+      }
+      return Object.assign(record, req.body.example)
+    })
     .then(record => record.save())
     .then(() => res.sendStatus(204))
     .catch(err => handle(err, res))
@@ -52,7 +60,12 @@ router.patch('/examples/:id', requireToken, (req, res) => {
 // destroy
 router.delete('/examples/:id', requireToken, (req, res) => {
   Example.findById(req.params.id)
-    .then(record => record.remove())
+    .then(record => {
+      if (!req.user._id.equals(record.owner)) {
+        throw new Error({name: 'OwnershipError'})
+      }
+      record.remove()
+    })
     .then(() => res.sendStatus(204))
     .catch(err => handle(err, res))
 })
