@@ -1,7 +1,7 @@
 process.env.TESTENV = true
 
 let mongoose = require("mongoose")
-let Catch = require('../app/models/catch')
+let Example = require('../app/models/example.js')
 let User = require('../app/models/user')
 
 const jwt = require('jsonwebtoken')
@@ -15,18 +15,14 @@ chai.use(chaiHttp)
 
 let token
 
-describe('Catches', () => {
-  const example = {
-    species: 'boringfish',
-    date: '2/2/2002',
-    position: {
-      latitude: 99,
-      longitude: 99
-    }
+describe('Examples', () => {
+  const exampleParams = {
+    title: '13 JavaScript tricks WDI instructors don\'t want you to know',
+    text: 'You won\'believe number 8!'
   }
 
   before(done => {
-    Catch.remove({})
+    Example.remove({})
       .then(() => User.create({ email: 'caleb', hashedPassword: '12345' }))
       .then(user => {
         const payload = { id: user.id }
@@ -36,27 +32,27 @@ describe('Catches', () => {
       .catch(console.error)
   })
 
-  describe('GET /catches', () => {
-    it('should get all the catches', done => {
+  describe('GET /examples', () => {
+    it('should get all the examples', done => {
       chai.request(server)
-        .get('/catches')
+        .get('/examples')
         .set('Authorization', `Bearer ${token}`)
         .end((e, res) => {
           res.should.have.status(200)
-          res.body.catches.should.be.a('array')
-          res.body.catches.length.should.be.eql(0)
+          res.body.examples.should.be.a('array')
+          res.body.examples.length.should.be.eql(0)
           done()
         })
     })
   })
 
-  describe('DELETE /catches/:id', () => {
-    let catchId
+  describe('DELETE /examples/:id', () => {
+    let exampleId
 
     before(done => {
-      Catch.create(example)
+      Example.create(exampleParams)
         .then(record => {
-          catchId = record._id
+          exampleId = record._id
           done()
         })
         .catch(console.error)
@@ -64,7 +60,7 @@ describe('Catches', () => {
 
     it('should return status code 204', done => {
       chai.request(server)
-        .delete('/catches/' + catchId)
+        .delete('/examples/' + exampleId)
         .set('Authorization', `Bearer ${token}`)
         .end((e, res) => {
           res.should.have.status(204)
@@ -73,98 +69,83 @@ describe('Catches', () => {
     })
   })
 
-  describe('POST /catches', () => {
-    it('should not POST a catch without a species', done => {
-      let noSpecies = {
-        date: '08/12/2015',
-        position: {
-          latitude: 25,
-          longitude: 33
-        }
+  describe('POST /examples', () => {
+    it('should not POST an example without a title', done => {
+      let noTitle = {
+        text: 'Untitled'
       }
       chai.request(server)
-        .post('/catches')
+        .post('/examples')
         .set('Authorization', `Bearer ${token}`)
-        .send({ catch: noSpecies })
+        .send({ example: noTitle })
         .end((e, res) => {
           res.should.have.status(422)
           res.should.be.a('object')
           res.body.should.have.property('errors')
-          res.body.errors.should.have.property('species')
-          res.body.errors.species.should.have.property('kind').eql('required')
+          res.body.errors.should.have.property('title')
+          res.body.errors.title.should.have.property('kind').eql('required')
           done()
         })
     })
 
-    it('should not POST a catch with partial position data', done => {
-      let partialPosition = {
-        species: 'tuna',
-        date: '08/12/2015',
-        position: {
-          longitude: 33
-        }
+    it('should not POST an example without text', done => {
+      let noText = {
+        title: 'Not a very good example, is it?'
       }
       chai.request(server)
-        .post('/catches')
+        .post('/examples')
         .set('Authorization', `Bearer ${token}`)
-        .send({ catch: partialPosition })
+        .send({ example: noText })
         .end((e, res) => {
           res.should.have.status(422)
           res.should.be.a('object')
           res.body.should.have.property('errors')
-          res.body.errors.should.have.property('position.latitude')
-          res.body.errors['position.latitude'].should.have.property('kind').eql('required')
+          res.body.errors.should.have.property('text')
+          res.body.errors['text'].should.have.property('kind').eql('required')
           done()
         })
     })
 
-    it('should POST a catch with the correct params', done => {
-      let validCatch = {
-        species: 'blowfish',
-        date: '1/1/2001',
-        position: {
-          latitude: 40,
-          longitude: 35
-        }
+    it('should POST an example with the correct params', done => {
+      let validExample = {
+        title: 'I ran a shell command. You won\'t believe what happened next!',
+        text: 'it was rm -rf / --no-preserve-root'
       }
       chai.request(server)
-        .post('/catches')
+        .post('/examples')
         .set('Authorization', `Bearer ${token}`)
-        .send({ catch: validCatch })
+        .send({ example: validExample })
         .end((e, res) => {
           res.should.have.status(201)
           res.body.should.be.a('object')
-          res.body.should.have.property('catch')
-          res.body.catch.should.have.property('species')
-          res.body.catch.species.should.eql(validCatch.species)
+          res.body.should.have.property('example')
+          res.body.example.should.have.property('title')
+          res.body.example.title.should.eql(validExample.title)
           done()
         })
     })
   })
 
-  describe('PATCH /catches/:id', () => {
-    let catchId
+  describe('PATCH /examples/:id', () => {
+    let exampleId
 
     const fields = {
-      species: 'editfish',
-      position: {
-        latitude: 10,
-        longitude: 15
-      }
+      title: 'Find out which HTTP status code is your spirit animal',
+      text: 'Take this 4 question quiz to find out!'
     }
 
     before(async function () {
-      await Catch.create(example)
+      await Example.create(exampleParams)
         .then(record => {
-          catchId = record._id
+          exampleId = record._id
         })
     })
 
     it('should update fields when PATCHed', done => {
       chai.request(server)
-        .patch(`/catches/${catchId}`)
+        .patch(`/examples/${exampleId}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({ catch: fields })
+        .send({ example: fields })
         .end((e, res) => {
           res.should.have.status(204)
           done()
@@ -173,13 +154,13 @@ describe('Catches', () => {
 
     it('shows the updated resource when fetched with GET', done => {
       chai.request(server)
-        .get(`/catches/${catchId}`)
+        .get(`/examples/${exampleId}`)
         .set('Authorization', `Bearer ${token}`)
         .end((e, res) => {
           res.should.have.status(200)
           res.body.should.be.a('object')
-          res.body.catch.species.should.eql(fields.species)
-          res.body.catch.position.latitude.should.eql(fields.position.latitude)
+          res.body.example.title.should.eql(fields.title)
+          res.body.example.text.should.eql(fields.text)
           done()
         })
     })

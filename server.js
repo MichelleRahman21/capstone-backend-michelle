@@ -4,7 +4,7 @@ const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 
 // require route files
-const catchRoutes = require('./app/routes/catch_routes')
+const exampleRoutes = require('./app/routes/example_routes')
 const userRoutes = require('./app/routes/user_routes')
 
 // require database configuration logic
@@ -52,7 +52,7 @@ app.use(auth)
 app.use(bodyParser.json())
 
 // register route files
-app.use(catchRoutes)
+app.use(exampleRoutes)
 app.use(userRoutes)
 
 // run API on designated port (4741 in this case)

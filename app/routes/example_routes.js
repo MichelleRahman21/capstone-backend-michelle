@@ -2,7 +2,7 @@ const express = require('express')
 const passport = require('passport')
 
 const handle = require('../../lib/error_handler')
-const Catch = require('../models/catch')
+const Example = require('../models/example')
 
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
@@ -12,43 +12,43 @@ const router = express.Router()
 const requireToken = passport.authenticate('jwt', { session: false })
 
 // create
-router.post('/catches', requireToken, (req, res) => {
-  Catch.create(req.body.catch)
+router.post('/examples', requireToken, (req, res) => {
+  Example.create(req.body.example)
     .then(record => {
-      res.status(201).json({ catch: record.toJSON() })
+      res.status(201).json({ example: record.toJSON() })
     })
     .catch(err => handle(err, res))
 })
 
 // show
-router.get('/catches/:id', requireToken, (req, res) => {
-  Catch.findById(req.params.id)
-    .then(record => res.status(200).json({ catch: record.toJSON() }))
+router.get('/examples/:id', requireToken, (req, res) => {
+  Example.findById(req.params.id)
+    .then(record => res.status(200).json({ example: record.toJSON() }))
     .catch(err => handle(err, res))
 })
 
 // index
-router.get('/catches', requireToken, (req, res) => {
-  Catch.find()
+router.get('/examples', requireToken, (req, res) => {
+  Example.find()
     .then(records => {
       return records.map(record => record.toJSON())
     })
-    .then(records => res.status(200).json({ catches: records }))
+    .then(records => res.status(200).json({ examples: records }))
     .catch(err => handle(err, res))
 })
 
 // update
-router.patch('/catches/:id', requireToken, (req, res) => {
-  Catch.findById(req.params.id)
-    .then(record => Object.assign(record, req.body.catch))
+router.patch('/examples/:id', requireToken, (req, res) => {
+  Example.findById(req.params.id)
+    .then(record => Object.assign(record, req.body.example))
     .then(record => record.save())
     .then(() => res.sendStatus(204))
     .catch(err => handle(err, res))
 })
 
 // destroy
-router.delete('/catches/:id', requireToken, (req, res) => {
-  Catch.findById(req.params.id)
+router.delete('/examples/:id', requireToken, (req, res) => {
+  Example.findById(req.params.id)
     .then(record => record.remove())
     .then(() => res.sendStatus(204))
     .catch(err => handle(err, res))
