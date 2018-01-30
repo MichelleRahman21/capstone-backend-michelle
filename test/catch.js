@@ -2,6 +2,9 @@ process.env.TESTENV = true
 
 let mongoose = require("mongoose")
 let Catch = require('../app/models/catch')
+let User = require('../app/models/user')
+
+const jwt = require('jsonwebtoken')
 
 let chai = require('chai')
 let chaiHttp = require('chai-http')
@@ -9,6 +12,8 @@ let server = require('../server')
 let should = chai.should()
 
 chai.use(chaiHttp)
+
+let token
 
 describe('Catches', () => {
   const example = {
@@ -21,15 +26,20 @@ describe('Catches', () => {
   }
 
   before(done => {
-    Catch.remove({}, e => {
-      done()
-    })
+    Catch.remove({})
+      .then(() => User.create({ email: 'caleb', hashedPassword: '12345' }))
+      .then(user => {
+        const payload = { id: user.id }
+        token = jwt.sign(payload, process.env.KEY, { expiresIn: '1h' })
+        done()
+      })
   })
 
   describe('GET /catches', () => {
     it('should get all the catches', done => {
       chai.request(server)
         .get('/catches')
+        .set('Authorization', `Bearer ${token}`)
         .end((e, res) => {
           res.should.have.status(200)
           res.body.catches.should.be.a('array')
@@ -52,6 +62,7 @@ describe('Catches', () => {
     it('should return status code 204', done => {
       chai.request(server)
         .delete('/catches/' + catchId)
+        .set('Authorization', `Bearer ${token}`)
         .end((e, res) => {
           res.should.have.status(204)
           done()
@@ -70,6 +81,7 @@ describe('Catches', () => {
       }
       chai.request(server)
         .post('/catches')
+        .set('Authorization', `Bearer ${token}`)
         .send({ catch: noSpecies })
         .end((e, res) => {
           res.should.have.status(422)
@@ -91,6 +103,7 @@ describe('Catches', () => {
       }
       chai.request(server)
         .post('/catches')
+        .set('Authorization', `Bearer ${token}`)
         .send({ catch: partialPosition })
         .end((e, res) => {
           res.should.have.status(422)
@@ -113,6 +126,7 @@ describe('Catches', () => {
       }
       chai.request(server)
         .post('/catches')
+        .set('Authorization', `Bearer ${token}`)
         .send({ catch: validCatch })
         .end((e, res) => {
           res.should.have.status(201)
@@ -146,6 +160,7 @@ describe('Catches', () => {
     it('should update fields when PATCHed', done => {
       chai.request(server)
         .patch(`/catches/${catchId}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ catch: fields })
         .end((e, res) => {
           res.should.have.status(204)
@@ -156,6 +171,7 @@ describe('Catches', () => {
     it('shows the updated resource when fetched with GET', done => {
       chai.request(server)
         .get(`/catches/${catchId}`)
+        .set('Authorization', `Bearer ${token}`)
         .end((e, res) => {
           res.should.have.status(200)
           res.body.should.be.a('object')
