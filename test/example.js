@@ -14,6 +14,7 @@ let should = chai.should()
 chai.use(chaiHttp)
 
 let token
+let userId
 
 describe('Examples', () => {
   const exampleParams = {
@@ -25,7 +26,8 @@ describe('Examples', () => {
     Example.remove({})
       .then(() => User.create({ email: 'caleb', hashedPassword: '12345' }))
       .then(user => {
-        const payload = { id: user.id }
+        const payload = { id: user._id }
+        userId = user._id
         token = jwt.sign(payload, process.env.KEY, { expiresIn: '1h' })
         done()
       })
@@ -50,7 +52,7 @@ describe('Examples', () => {
     let exampleId
 
     before(done => {
-      Example.create(exampleParams)
+      Example.create(Object.assign(exampleParams, { owner: userId }))
         .then(record => {
           exampleId = record._id
           done()
@@ -72,7 +74,8 @@ describe('Examples', () => {
   describe('POST /examples', () => {
     it('should not POST an example without a title', done => {
       let noTitle = {
-        text: 'Untitled'
+        text: 'Untitled',
+        owner: 'fakedID'
       }
       chai.request(server)
         .post('/examples')
@@ -90,7 +93,8 @@ describe('Examples', () => {
 
     it('should not POST an example without text', done => {
       let noText = {
-        title: 'Not a very good example, is it?'
+        title: 'Not a very good example, is it?',
+        owner: 'fakeID'
       }
       chai.request(server)
         .post('/examples')
@@ -135,7 +139,7 @@ describe('Examples', () => {
     }
 
     before(async function () {
-      await Example.create(exampleParams)
+      await Example.create(Object.assign(exampleParams, { owner: userId }))
         .then(record => {
           exampleId = record._id
         })
