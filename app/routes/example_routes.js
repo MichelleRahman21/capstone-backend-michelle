@@ -9,6 +9,7 @@ const router = express.Router()
 
 // passing this as a second argument to `router.<verb>` will make it
 // so that a token MUST be passed for that route to be available
+// it will also set `res.user`
 const requireToken = passport.authenticate('jwt', { session: false })
 
 // create
@@ -40,6 +41,8 @@ router.get('/examples', requireToken, (req, res) => {
 // update
 router.patch('/examples/:id', requireToken, (req, res) => {
   Example.findById(req.params.id)
+    // Object.assign merges whatever changeds are in req.body
+    // into the record found on the previous line
     .then(record => Object.assign(record, req.body.example))
     .then(record => record.save())
     .then(() => res.sendStatus(204))
