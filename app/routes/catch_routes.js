@@ -7,8 +7,12 @@ const Catch = require('../models/catch')
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
 
+// passing this as a second argument to `router.<verb>` will make it
+// so that a token MUST be passed for that route to be available
+const requireToken = passport.authenticate('jwt', { session: false })
+
 // create
-router.post('/catches', (req, res) => {
+router.post('/catches', requireToken, (req, res) => {
   Catch.create(req.body.catch)
     .then(record => {
       res.status(201).json({ catch: record.toJSON() })
@@ -17,15 +21,14 @@ router.post('/catches', (req, res) => {
 })
 
 // show
-router.get('/catches/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
-  console.log('USER HERE', req.user)
+router.get('/catches/:id', requireToken, (req, res) => {
   Catch.findById(req.params.id)
     .then(record => res.status(200).json({ catch: record.toJSON() }))
     .catch(err => handle(err, res))
 })
 
 // index
-router.get('/catches', passport.authenticate('jwt', { session: false }), (req, res) => {
+router.get('/catches', requireToken, (req, res) => {
   Catch.find()
     .then(records => {
       return records.map(record => record.toJSON())
@@ -35,7 +38,7 @@ router.get('/catches', passport.authenticate('jwt', { session: false }), (req, r
 })
 
 // update
-router.patch('/catches/:id', (req, res) => {
+router.patch('/catches/:id', requireToken, (req, res) => {
   Catch.findById(req.params.id)
     .then(record => Object.assign(record, req.body.catch))
     .then(record => record.save())
@@ -44,7 +47,7 @@ router.patch('/catches/:id', (req, res) => {
 })
 
 // destroy
-router.delete('/catches/:id', (req, res) => {
+router.delete('/catches/:id', requireToken, (req, res) => {
   Catch.findById(req.params.id)
     .then(record => record.remove())
     .then(() => res.sendStatus(204))
