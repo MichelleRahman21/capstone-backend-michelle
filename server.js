@@ -11,9 +11,6 @@ const userRoutes = require('./app/routes/user_routes')
 // `db` will be the actual Mongo URI as a string
 const db = require('./config/db')
 
-// require configured passport authentication middleware
-const auth = require('./lib/auth')
-
 // load secret keys for signing tokens from .env
 const dotenv = require('dotenv')
 dotenv.config()
@@ -24,6 +21,9 @@ if (process.env.TESTENV) {
 } else {
   process.env.KEY = process.env.SECRET_KEY_BASE_DEVELOPMENT
 }
+
+// require configured passport authentication middleware
+const auth = require('./lib/auth')
 
 // establish database connection
 mongoose.Promise = global.Promise
@@ -36,6 +36,12 @@ const app = express()
 
 // define port for API to run on
 const port = process.env.PORT || 4741
+
+// TEMPORARY DEBUGGER
+// app.use((req, res, next) => {
+//   console.log('HEADERS HERE', req.headers)
+//   next()
+// })
 
 // register passport authentication middleware
 app.use(auth)
