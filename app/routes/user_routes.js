@@ -3,6 +3,7 @@ const handle = require('../../lib/error_handler')
 const User = require('../models/user')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const passport = require('passport')
 
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
@@ -45,6 +46,24 @@ router.post('/sign-in', (req, res) => {
         res.status(401).send('fail')
       }
     })
+    .catch(err => handle(err, res))
+})
+
+const requireToken = passport.authenticate('jwt', { session: false })
+
+// change-password
+router.patch('/change-password', requireToken, (req, res) => {
+  let user
+  User.findById(req.user.id)
+    .then(record => {
+      user = record
+      return bcrypt.hash(req.body.passwords.new, 10)
+    })
+    .then(hash => {
+      user.hashedPassword = hash
+      return user.save()
+    })
+    .then(() => res.sendStatus(200))
     .catch(err => handle(err, res))
 })
 
