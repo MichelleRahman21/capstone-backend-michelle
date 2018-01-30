@@ -33,6 +33,7 @@ describe('Catches', () => {
         token = jwt.sign(payload, process.env.KEY, { expiresIn: '1h' })
         done()
       })
+      .catch(console.error)
   })
 
   describe('GET /catches', () => {
@@ -52,11 +53,13 @@ describe('Catches', () => {
   describe('DELETE /catches/:id', () => {
     let catchId
 
-    before(async function () {
-      await Catch.create(example)
+    before(done => {
+      Catch.create(example)
         .then(record => {
           catchId = record._id
+          done()
         })
+        .catch(console.error)
     })
 
     it('should return status code 204', done => {
