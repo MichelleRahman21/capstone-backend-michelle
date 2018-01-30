@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "test": "mocha --exit"
+    "test": "mocha --exit",
+    "dev-server": "nodemon server.js",
+    "debug-server": "DEBUG=express:* nodemon server.js"
   },
   "author": "",
   "license": "ISC",
