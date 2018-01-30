@@ -19,13 +19,13 @@ describe('Users', () => {
     }
   }
 
-  beforeEach(done => {
-    User.remove({}, e => {
-      done()
-    })
-  })
-
   describe('POST /sign-up', () => {
+    beforeEach(done => {
+      User.remove({})
+        .then(() => done())
+        .catch(() => done())
+    })
+
     it('should create a user if params are valid', done => {
       chai.request(server)
         .post('/sign-up')
@@ -43,16 +43,60 @@ describe('Users', () => {
       const params = userParams
       params.credentials.hashedPassword = 'this is not very secure'
 
-      User.create(params.credentials)
+      User.create(userParams)
+        .then(() => {
+          chai.request(server)
+            .post('/sign-up')
+            .send(userParams)
+            .end((e, res) => {
+              res.should.have.status(422)
+              res.should.be.a('object')
+              res.body.should.have.property('errmsg')
+              done()
+            })
+        })
+        .catch(() => done())
+    })
+  })
 
+  describe('POST /sign-in', () => {
+    let token
+
+    before(done => {
       chai.request(server)
         .post('/sign-up')
         .send(userParams)
+        .end(() => done())
+    })
+
+    after(done => {
+      User.remove({})
+        .then(() => done())
+        .catch(() => done())
+    })
+
+    it('should return a token when given valid credentials', done => {
+      chai.request(server)
+        .post('/sign-in')
+        .send(userParams)
         .end((e, res) => {
-          res.should.have.status(422)
+          res.should.have.status(201)
           res.should.be.a('object')
-          res.should.be.a('object')
-          res.body.should.have.property('errmsg')
+          res.body.should.have.property('token')
+          res.body.token.should.be.a('string')
+          token = res.body.token
+          done()
+        })
+    })
+
+    it('the token should allow you to GET /catches', done => {
+      chai.request(server)
+        .get('/catches')
+        .set('Authorization', `Bearer ${token}`)
+        .end((e, res) => {
+          res.should.have.status(200)
+          res.body.should.have.property('catches')
+          res.body.catches.should.be.a('array')
           done()
         })
     })
