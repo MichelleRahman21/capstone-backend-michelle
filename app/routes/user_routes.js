@@ -36,7 +36,7 @@ router.post('/sign-in', (req, res) => {
     .then(data => {
       if (data.correctPassword) {
         const payload = { id: data.user.id }
-        const token = jwt.sign(payload, secretKey, { expiresIn: '1h' })
+        const token = jwt.sign(payload, process.env.KEY, { expiresIn: '1h' })
         res.status(201).json({
           email: data.user.email,
           token
