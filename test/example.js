@@ -60,7 +60,17 @@ describe('Examples', () => {
         .catch(console.error)
     })
 
-    it('should return status code 204', done => {
+    it('should not let you delete someone else\'s resource', done => {
+      chai.request(server)
+        .delete('/examples/' + exampleId)
+        .set('Authorization', `Bearer notarealtoken`)
+        .end((e, res) => {
+          res.should.have.status(401)
+          done()
+        })
+    })
+
+    it('should be succesful if you own the resource', done => {
       chai.request(server)
         .delete('/examples/' + exampleId)
         .set('Authorization', `Bearer ${token}`)
@@ -110,6 +120,16 @@ describe('Examples', () => {
         })
     })
 
+    it('should not allow a POST from an unauthenticated user', done => {
+      chai.request(server)
+        .post('/examples')
+        .send({ example: exampleParams })
+        .end((e, res) => {
+          res.should.have.status(401)
+          done()
+        })
+    })
+
     it('should POST an example with the correct params', done => {
       let validExample = {
         title: 'I ran a shell command. You won\'t believe what happened next!',
@@ -142,6 +162,17 @@ describe('Examples', () => {
       await Example.create(Object.assign(exampleParams, { owner: userId }))
         .then(record => {
           exampleId = record._id
+        })
+    })
+
+    it('should fail if you don\'t own the resource', done => {
+      chai.request(server)
+        .patch('/examples/' + exampleId)
+        .set('Authorization', `Bearer notarealtoken`)
+        .send({ example: fields })
+        .end((e, res) => {
+          res.should.have.status(401)
+          done()
         })
     })
 
