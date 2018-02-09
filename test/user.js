@@ -165,4 +165,35 @@ describe('Users', () => {
         })
     })
   })
+
+  describe('DELETE /sign-out', () => {
+    let token
+
+    before(done => {
+      chai.request(server)
+        .post('/sign-up')
+        .send(userParams)
+        .end(() => done())
+    })
+
+    before(done => {
+      chai.request(server)
+        .post('/sign-in')
+        .send(userParams)
+        .end((e, res) => {
+          token = res.body.token
+          done()
+        })
+    })
+
+    it('returns 204', done => {
+      chai.request(server)
+        .delete('/sign-out')
+        .set('Authorization', `Bearer ${token}`)
+        .end((e, res) => {
+          res.status.should.eql(204)
+          done()
+        })
+    })
+  })
 })

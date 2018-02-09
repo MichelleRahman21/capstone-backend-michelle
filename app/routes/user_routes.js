@@ -1,31 +1,50 @@
 const express = require('express')
-const handle = require('../../lib/error_handler')
-const User = require('../models/user')
-const bcrypt = require('bcrypt')
+// jsonwebtoken docs: https://github.com/auth0/node-jsonwebtoken
 const jwt = require('jsonwebtoken')
+// Passport docs: http://www.passportjs.org/docs/
 const passport = require('passport')
+// bcrypt docs: https://github.com/kelektiv/node.bcrypt.js
+const bcrypt = require('bcrypt')
+
+// see above for explanation of "salting", 10 rounds is recommended
+const bcryptSaltRounds = 10
+
+const handle = require('../../lib/error_handler')
+
+const User = require('../models/user')
+
+// passing this as a second argument to `router.<verb>` will make it
+// so that a token MUST be passed for that route to be available
+// it will also set `res.user`
+const requireToken = passport.authenticate('jwt', { session: false })
 
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
 
-// sign-up
+// SIGN UP
+// POST /sign-up
 router.post('/sign-up', (req, res) => {
-  // asynchronously generate a hash from the provided password
-  bcrypt.hash(req.body.credentials.password, 10)
+  // generate a hash from the provided password
+  // this returns a promise
+  bcrypt.hash(req.body.credentials.password, bcryptSaltRounds)
     .then(hash => {
-      // pass a (hopefully) valid user object into the next `.then`
+      // return necessary params to create a user
       return {
         email: req.body.credentials.email,
         hashedPassword: hash
       }
     })
+    // create user with provided email and hashed password
     .then(user => User.create(user))
-    .then(user => user.toObject())
-    .then(user => res.status(201).json({user}))
+    // send the new user object back with status 201, but `hashedPassword`
+    // won't be send because of the `transform` in the User model
+    .then(user => res.status(201).json({ user: user.toObject() }))
+    // pass any errors along to the error handler
     .catch(err => handle(err, res))
 })
 
-// sign-in
+// SIGN IN
+// POST /sign-in
 router.post('/sign-in', (req, res) => {
   const pw = req.body.credentials.password
 
@@ -54,33 +73,37 @@ router.post('/sign-in', (req, res) => {
           token
         })
       } else {
+        // if the password didn't match the email, return "401 Unauthorized"
         res.sendStatus(401)
       }
     })
     .catch(err => handle(err, res))
 })
 
-// this is the same `authenticate` function we use in resource routes
-// that need to be authenticated
-const requireToken = passport.authenticate('jwt', { session: false })
-
-// change-password
+// CHANGE password
+// PATCH /change-password
 router.patch('/change-password', requireToken, (req, res) => {
   let user
   // `req.user` will be determined by decoding the token payload
   User.findById(req.user.id)
     .then(record => {
       user = record
-      // send a hash of the new password to the next `.then`
-      return bcrypt.hash(req.body.passwords.new, 10)
+      // return a hash of the new password
+      return bcrypt.hash(req.body.passwords.new, bcryptSaltRounds)
     })
     .then(hash => {
+      // set and save the new hashed password in the DB
       user.hashedPassword = hash
-      // save the new hashed password in the DB
       return user.save()
     })
+    // respond with no content and status 200
     .then(() => res.sendStatus(200))
+    // pass any errors along to the error handler
     .catch(err => handle(err, res))
+})
+
+router.delete('/sign-out', requireToken, (req, res) => {
+  res.sendStatus(204)
 })
 
 module.exports = router
