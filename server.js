@@ -15,10 +15,13 @@ const db = require('./config/db')
 const dotenv = require('dotenv')
 dotenv.config()
 
-// select a key based on the current environment
+// Set the key based on the current environemnt
+// Set to secret key base test if in test
 if (process.env.TESTENV) {
   process.env.KEY = process.env.SECRET_KEY_BASE_TEST
-} else {
+// Set to secret key base development if not test and no key present
+// process.env.KEY is present in production and set through heroku
+} else if (!process.env.KEY) {
   process.env.KEY = process.env.SECRET_KEY_BASE_DEVELOPMENT
 }
 
