@@ -10,6 +10,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   }
+}, {
+  timestamps: true,
+  toObject: {
+    // remove `hashedPassword` field when we call `.toObject`
+    transform: (_doc, user) => {
+      delete user.hashedPassword
+      return user
+    }
+  }
 })
 
 module.exports = mongoose.model('User', userSchema)
