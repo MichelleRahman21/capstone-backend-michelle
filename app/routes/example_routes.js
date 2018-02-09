@@ -17,7 +17,7 @@ router.post('/examples', requireToken, (req, res) => {
   req.body.example.owner = req.user.id
   Example.create(req.body.example)
     .then(record => {
-      res.status(201).json({ example: record.toJSON() })
+      res.status(201).json({ example: record.toObject() })
     })
     .catch(err => handle(err, res))
 })
@@ -25,7 +25,7 @@ router.post('/examples', requireToken, (req, res) => {
 // show
 router.get('/examples/:id', requireToken, (req, res) => {
   Example.findById(req.params.id)
-    .then(record => res.status(200).json({ example: record.toJSON() }))
+    .then(record => res.status(200).json({ example: record.toObject() }))
     .catch(err => handle(err, res))
 })
 
@@ -33,7 +33,7 @@ router.get('/examples/:id', requireToken, (req, res) => {
 router.get('/examples', requireToken, (req, res) => {
   Example.find()
     .then(records => {
-      return records.map(record => record.toJSON())
+      return records.map(record => record.toObject())
     })
     .then(records => res.status(200).json({ examples: records }))
     .catch(err => handle(err, res))
