@@ -15,6 +15,7 @@ chai.use(chaiHttp)
 
 let token
 let userId
+let exampleId
 
 describe('Examples', () => {
   const exampleParams = {
@@ -29,6 +30,10 @@ describe('Examples', () => {
         const payload = { id: user._id }
         userId = user._id
         token = jwt.sign(payload, process.env.KEY, { expiresIn: '1h' })
+      })
+      .then(() => Example.create(Object.assign(exampleParams, {owner: userId})))
+      .then(record => {
+        exampleId = record._id
         done()
       })
       .catch(console.error)
@@ -42,7 +47,21 @@ describe('Examples', () => {
         .end((e, res) => {
           res.should.have.status(200)
           res.body.examples.should.be.a('array')
-          res.body.examples.length.should.be.eql(0)
+          res.body.examples.length.should.be.eql(1)
+          done()
+        })
+    })
+  })
+
+  describe('GET /examples/:id', () => {
+    it('should get one example', done => {
+      chai.request(server)
+        .get('/examples/' + exampleId)
+        .set('Authorization', `Bearer ${token}`)
+        .end((e, res) => {
+          res.should.have.status(200)
+          res.body.example.should.be.a('object')
+          res.body.example.title.should.eql(exampleParams.title)
           done()
         })
     })
@@ -60,7 +79,7 @@ describe('Examples', () => {
         .catch(console.error)
     })
 
-    it('should not let you delete someone else\'s resource', done => {
+    it('must be owned by the user', done => {
       chai.request(server)
         .delete('/examples/' + exampleId)
         .set('Authorization', `Bearer notarealtoken`)
@@ -165,7 +184,7 @@ describe('Examples', () => {
         })
     })
 
-    it('should fail if you don\'t own the resource', done => {
+    it('must be owned by the user', done => {
       chai.request(server)
         .patch('/examples/' + exampleId)
         .set('Authorization', `Bearer notarealtoken`)
