@@ -4,7 +4,7 @@ let mongoose = require("mongoose")
 let Example = require('../app/models/example.js')
 let User = require('../app/models/user')
 
-const jwt = require('jsonwebtoken')
+const crypto = require('crypto')
 
 let chai = require('chai')
 let chaiHttp = require('chai-http')
@@ -13,7 +13,7 @@ let should = chai.should()
 
 chai.use(chaiHttp)
 
-let token
+const token = crypto.randomBytes(16).toString('hex')
 let userId
 let exampleId
 
@@ -25,11 +25,14 @@ describe('Examples', () => {
 
   before(done => {
     Example.remove({})
-      .then(() => User.create({ email: 'caleb', hashedPassword: '12345' }))
+      .then(() => User.create({
+        email: 'caleb',
+        hashedPassword: '12345',
+        token
+      }))
       .then(user => {
-        const payload = { id: user._id }
         userId = user._id
-        token = jwt.sign(payload, process.env.KEY, { expiresIn: '1h' })
+        return user
       })
       .then(() => Example.create(Object.assign(exampleParams, {owner: userId})))
       .then(record => {
@@ -43,7 +46,7 @@ describe('Examples', () => {
     it('should get all the examples', done => {
       chai.request(server)
         .get('/examples')
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Token token=${token}`)
         .end((e, res) => {
           res.should.have.status(200)
           res.body.examples.should.be.a('array')
@@ -57,7 +60,7 @@ describe('Examples', () => {
     it('should get one example', done => {
       chai.request(server)
         .get('/examples/' + exampleId)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Token token=${token}`)
         .end((e, res) => {
           res.should.have.status(200)
           res.body.example.should.be.a('object')

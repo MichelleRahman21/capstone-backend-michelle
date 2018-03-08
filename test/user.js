@@ -16,15 +16,22 @@ after(done => {
     .catch(() => done())
 })
 
-describe('Users', () => {
-  const userParams = {
-    credentials: {
-      email: 'foo@bar.baz',
-      password: '12345',
-      password_confirmation: '12345'
-    }
+const userParams = {
+  credentials: {
+    email: 'foo@bar.baz',
+    password: '12345',
+    password_confirmation: '12345'
   }
+}
 
+const updatedParams = {
+  credentials: {
+    email: 'foo@bar.baz',
+    password: '54321'
+  }
+}
+
+describe('Users', () => {
   describe('POST /sign-up', () => {
     beforeEach(done => {
       User.remove({})
@@ -88,9 +95,11 @@ describe('Users', () => {
         .end((e, res) => {
           res.should.have.status(201)
           res.should.be.a('object')
-          res.body.should.have.property('token')
-          res.body.token.should.be.a('string')
-          token = res.body.token
+          res.body.should.have.property('user')
+          res.body.user.should.be.a('object')
+          res.body.user.should.have.property('token')
+          res.body.user.token.should.be.a('string')
+          token = res.body.user.token
           done()
         })
     })
@@ -130,7 +139,7 @@ describe('Users', () => {
         .post('/sign-in')
         .send(userParams)
         .end((e, res) => {
-          token = res.body.token
+          token = res.body.user.token
           done()
         })
     })
@@ -141,26 +150,19 @@ describe('Users', () => {
         .set('Authorization', `Bearer ${token}`)
         .send(changePwParams)
         .end((e, res) => {
-          res.should.have.status(200)
+          res.should.have.status(204)
           done()
         })
     })
 
     it('changes the password', done => {
-      const updatedParams = {
-        credentials: {
-          email: 'foo@bar.baz',
-          password: '54321'
-        }
-      }
-
       chai.request(server)
         .post('/sign-in')
         .send(updatedParams)
         .end((e, res) => {
           res.should.have.status(201)
-          res.body.should.have.property('token')
-          res.body.token.should.be.a('string')
+          res.body.user.should.have.property('token')
+          res.body.user.token.should.be.a('string')
           done()
         })
     })
@@ -172,16 +174,16 @@ describe('Users', () => {
     before(done => {
       chai.request(server)
         .post('/sign-up')
-        .send(userParams)
+        .send(updatedParams)
         .end(() => done())
     })
 
     before(done => {
       chai.request(server)
         .post('/sign-in')
-        .send(userParams)
+        .send(updatedParams)
         .end((e, res) => {
-          token = res.body.token
+          token = res.body.user.token
           done()
         })
     })
