@@ -99,13 +99,16 @@ router.patch('/change-password', requireToken, (req, res) => {
       return user.save()
     })
     // respond with no content and status 200
-    .then(() => res.sendStatus(200))
+    .then(() => res.sendStatus(204))
     // pass any errors along to the error handler
     .catch(err => handle(err, res))
 })
 
 router.delete('/sign-out', requireToken, (req, res) => {
-  res.sendStatus(204)
+  req.user.token = crypto.randomBytes(16)
+  req.user.save()
+    .then(() => res.sendStatus(204))
+    .catch(err => handle(err, res))
 })
 
 module.exports = router
