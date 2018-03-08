@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
   hashedPassword: {
     type: String,
     required: true
-  }
+  },
+  token: String
 }, {
   timestamps: true,
   toObject: {
