@@ -1,6 +1,6 @@
 const express = require('express')
 // jsonwebtoken docs: https://github.com/auth0/node-jsonwebtoken
-const jwt = require('jsonwebtoken')
+const crypto = require('crypto')
 // Passport docs: http://www.passportjs.org/docs/
 const passport = require('passport')
 // bcrypt docs: https://github.com/kelektiv/node.bcrypt.js
@@ -10,13 +10,14 @@ const bcrypt = require('bcrypt')
 const bcryptSaltRounds = 10
 
 const handle = require('../../lib/error_handler')
+const WrongPasswordError = require('../../lib/custom_errors').WrongPasswordError
 
 const User = require('../models/user')
 
 // passing this as a second argument to `router.<verb>` will make it
 // so that a token MUST be passed for that route to be available
 // it will also set `res.user`
-const requireToken = passport.authenticate('jwt', { session: false })
+const requireToken = passport.authenticate('bearer', { session: false })
 
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
@@ -51,31 +52,32 @@ router.post('/sign-in', (req, res) => {
   // find a user based on the email that was passed
   User.findOne({ email: req.body.credentials.email })
     .then(user => {
-      return {
-        // `bcrypt.compare` will return true if the result of hashing `pw`
-        // is exactly equal to the hashed password stored in the DB
-        correctPassword: bcrypt.compare(pw, user.hashedPassword),
-        user
-      }
+      // `bcrypt.compare` will return true if the result of hashing `pw`
+      // is exactly equal to the hashed password stored in the DB
+      return Promise.all([bcrypt.compare(pw, user.hashedPassword), user])
     })
     .then(data => {
+      const user = data[1]
+      const correctPassword = data[0]
       // if the passwords matched
-      if (data.correctPassword) {
-        // we will encode the user ID in each token, so we know who the token
-        // belongs to. This is the "payload"
-        const payload = { id: data.user.id }
-        // generate a token that lasts 1 hour by encrypting the payload and
-        // signing it with the secret key from `.env`
-        const token = jwt.sign(payload, process.env.KEY, { expiresIn: '1h' })
-        // return status 201, the email, and the new token
-        res.status(201).json({
-          email: data.user.email,
-          token
-        })
+      if (correctPassword) {
+        console.log('got the right PW')
+        // the token will be a 16 byte random hex string
+        // NOTE: this is secure enough for our purposes, but don't use this
+        // token generation method for your fintech startup
+        const token = crypto.randomBytes(16).toString('hex')
+        user.token = token
+        // save the token to the DB as a property on user
+        return user.save()
       } else {
-        // if the password didn't match the email, return "401 Unauthorized"
-        res.sendStatus(401)
+        // throw an error to trigger the error handler and end the promise chain
+        // this will send back 401 and a message about the wrong password
+        throw new WrongPasswordError()
       }
+    })
+    .then(user => {
+      // return status 201, the email, and the new token
+      res.status(201).json({ user: user.toObject() })
     })
     .catch(err => handle(err, res))
 })
