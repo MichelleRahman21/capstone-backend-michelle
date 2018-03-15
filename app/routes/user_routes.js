@@ -61,7 +61,6 @@ router.post('/sign-in', (req, res) => {
       const correctPassword = data[0]
       // if the passwords matched
       if (correctPassword) {
-        console.log('got the right PW')
         // the token will be a 16 byte random hex string
         // NOTE: this is secure enough for our purposes, but don't use this
         // token generation method for your fintech startup
