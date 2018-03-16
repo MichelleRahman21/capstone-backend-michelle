@@ -94,8 +94,8 @@ router.patch('/examples/:id', requireToken, (req, res) => {
         if (req.body.example[key] === '') {
           delete req.body.example[key]
         }
-      }
-      
+      })
+
       // pass the result of Mongoose's `.update` to the next `.then`
       return example.update(req.body.example)
     })
