@@ -1,208 +1,464 @@
 [![General Assembly Logo](https://camo.githubusercontent.com/1a91b05b8f4d44b5bbfb83abac2b0996d8e26c92/687474703a2f2f692e696d6775722e636f6d2f6b6538555354712e706e67)](https://generalassemb.ly/education/web-development-immersive)
 
-# express-api-template
+# Express as an API
 
-A template for starting projects with `express` as an API. Includes
-authentication and common middlewares.
+## Prerequisites
 
-## Installation
+- [node-http-server](https://git.generalassemb.ly/ga-wdi-boston/node-http-server)
+- [mongoose-crud](https://git.generalassemb.ly/ga-wdi-boston/mongoose-crud)
 
-1.  [Download](../../archive/master.zip) this template.
-1.  Move the .zip file to your `wdi/projects/` directory and Unzip it (creating a folder) -- **NOTE:** if the folder was already unzipped, use the `mv` command line to move it to the `wdi/projects/` directory.
-1.  Rename the directory from express-api-template -> your-app-name.
-1.  Empty [`README.md`](README.md) and fill with your own content.
-1.  Move into the new project and `git init`.
-1.  Replace all instances of `'express-api-template'` with your app name. 
-1.  Install dependencies with `npm install`.
+## Objectives
+
+By the end of this, developers should be able to:
+
+- Develop an Express API, leveraging architectural conventions from Rails.
+- Write five CRUD endpoints for an API resource using Express, Mongoose, and
+  JavaScript.
+- Prevent unauthorized users from creating or changing data through the API.
+
+## Preparation
+
+1. Create a new branch, `training`, for your work.
+1. Checkout to the `training` branch.
+1. Install dependencies with `npm install`.
+1. Verify mongodb is running with `brew services list`
+   (Run `brew services restart mongodb` if not).
 1.  From the root of your repository, run the following commands. They will set a SECRET_KEY for development and testing.
  ```sh
  echo SECRET_KEY_BASE_TEST=$(openssl rand -base64 66 | tr -d '\n') >>.env
  echo SECRET_KEY_BASE_DEVELOPMENT=$(openssl rand -base64 66 | tr -d '\n' >> .env
  ```
-1.  Either run the API server with `npm start` OR if you want your code to be reloaded on
-    change, you should `npm install --global nodemon` and use `nodemon` instead of
-    `npm start`.
-1.  Once everything is working, make an initial commit.
-1.  Follow the steps in [express-api-deployment-guide](https://git.generalassemb.ly/ga-wdi-boston/express-api-deployment-guide)
+1. Install Nodemon by `npm install --global nodemon`. Nodemon will reload the
+application on a change to any file in the application. To use Nodemon with the
+Express server, run `npm run dev-server`.
 
-## Structure
+## Overview
 
-Dependencies are stored in [`package.json`](package.json).
+According to its maintainers: 
 
-The most important file for understanding the structure of the template is 
-`server.js`. This is where the actual Express `app` object is created, where
-the middlewares and routes are registered, and more. To register a routefile,
-follow the pattern established here with `exampleRoutes` and `userRoutes`. If
-you want to add any middlewares to your app, do that here.
-
-The `app` directory contains models and route files. Models are simply Mongoose
-models. To create your own, follow the patterns established in 
-`app/models/example.js`. Route files are somewhat similar to controllers in
-Rails, but they cover more functionality, including serialization and deciding
-which HTTP verbs to accept and what to do with them.
-
-The `config` directory holds just `db.js`, which is where you specify the name
-and URL of your database.
-
-The `lib` directory is for code that will be used in other places in the
-application. The token authentication code is stored in `lib/auth.js`. The
-other files in `lib` deal with error handling. `custom_errors.js` is where all
-the different custom classes of errors are created. If you need some other kind
-of error message, you can add it here. There are also some functions defined
-here that are used elsewhere to check for errors. `lib/error_handler.js` is a
-function that will be used in all your `.catch`es. It catches errors, and sets
-the response status code based on what type of error got thrown.
-
-You probably will only need to interact with files in `app/models`,
-`app/routes`, and `server.js`. You'll need to edit `db/config.js` just once,
-to change the name of your app.
-
-## Tasks
-
-Instead of `grunt`, this template uses `npm` as a task runner. This is more
-conventional for modern Express apps, and it's handy because we'll definitely
-use `npm` anyway. These are the commands available:
-
-| Command                | Effect                                                                                                      |
-|------------------------|-------------------------------------------------------------------------------------------------------------|
-| `npm start`            | Starts the server.                                                                                          |
-| `npm test`             | Runs automated tests.                                                                                       |
-| `npm run dev-server`   | Starts a development server with `nodemon` that automatically refreshes when you change something.          |
-| `npm run debug-server` | Starts the server in debug mode, which will print lots of extra info about what's happening inside the app. |
-
-## API
-
-Use this as the basis for your own API documentation. Add a new third-level
-heading for your custom entities, and follow the pattern provided for the
-built-in user authentication documentation.
-
-Scripts are included in [`scripts`](scripts) to test built-in actions. Add your
-own scripts to test your custom API.
-
-### Authentication
-
-| Verb   | URI Pattern            | Controller#Action |
-|--------|------------------------|-------------------|
-| POST   | `/sign-up`             | `users#signup`    |
-| POST   | `/sign-in`             | `users#signin`    |
-| PATCH  | `/change-password/:id` | `users#changepw`  |
-| DELETE | `/sign-out/:id`        | `users#signout`   |
-
-#### POST /sign-up
-
-Request:
-
-```sh
-curl --include --request POST http://localhost:4741/sign-up \
-  --header "Content-Type: application/json" \
-  --data '{
-    "credentials": {
-      "email": "an@example.email",
-      "password": "an example password",
-      "password_confirmation": "an example password"
-    }
-  }'
+```
+Express is a minimal and flexible Node.js web application framework that 
+provides a robust set of features for web and mobile applications. 
 ```
 
-```sh
-scripts/sign-up.sh
+Express, like Rails, can be used as an API. In fact, building APIs in Express,
+especially those that use MongoDB for persistence, led to the rising popularity
+of Node.
+
+Express can be used for full-stack applications (those that have server-rendered
+views). However, we will use it purely as an API.
+
+A customized template for Express is available at [express-api-template](https://git.generalassemb.ly/ga-wdi-boston/express-api-template).
+It includes authentication and common middlewares so that you can start
+developing an API right away.
+
+## Demo: "Hello World" API
+
+Let's take a look at a super simple Express application. Open up
+`lib/tiny_server.js`. This is a fully functional Express API, in just four
+lines of code! We can run it like this:
+```
+node lib/tiny_server.js
+```
+And we can make a request to it like this:
+```
+curl --include localhost:4741
 ```
 
-Response:
+## Code-along: Simple to-do API
 
-```md
-HTTP/1.1 201 Created
-Content-Type: application/json; charset=utf-8
+Most apps need to do a bit more than always sending back "Hello world". To get
+some more exposure to Express, let's build out a minimal API that that we can
+use to keep track of tasks that we intend to do. Because we haven't learned how
+to integrate MongoDB (or other databases) into Express yet, we'll just store our
+data in memory.
 
-{
-  "user": {
-    "id": 1,
-    "email": "an@example.email"
-  }
+Our app will have three routes available:
+- `GET /tasks`: respond with JSON of all tasks, like `index` in Rails
+- `GET /tasks/:id`: respond with JSON of one task, like `show` in Rails
+- `POST /tasks`: accept JSON and create a task from it, then respond with
+the created tasks
+
+Our API we'll need more functionality than the previous example. Still, we'll
+recognize a lot of the same patterns. What were those `req` and `res` parameters
+exactly?
+
+`req` stands for request, and it contains lots of info about the incoming HTTP
+request that the server receives. It contains things like the URI path, HTTP
+headers, the HTTP verb (GET, POST, etc.), query parameters, parameters from
+dynamic route segments, and more.
+
+`res` stands for response. We use this object to put together a response, and
+then we send that response with methods attached to this object. Some of these
+are:
+
+| Response method      | What it means                                                                         |
+|:---------------------|:--------------------------------------------------------------------------------------|
+| `res.json(jsObject)` | Send a JSON response.                                                                 |
+| `res.redirect()`     | Redirect a request.                                                                   |
+| `res.sendStatus()`   | Set the response status code and send its string representation as the response body. |
+
+To accept a POST request with data attached to it, we'll need to parse the body
+of the HTTP request into a JS object. Because Express is minimal and doesn't
+make assumptions about what its users will try to do with it, this isn't
+included by default. Luckily, Express is easy to extend with plugins called
+"middlewares". 
+
+[Middlewares](https://expressjs.com/en/guide/using-middleware.html) are
+functions that can operate on the `req` and `res` objects in an Express app
+after a request is received and before a response is sent. You can register a
+middleware with `app.use(myMiddlewareFunc)`. The order in which you pass them
+to `.use` determines the order in which they execute. A simple middleware might
+look like this:
+
+```js
+const exampleMiddleware = function (req, res, next) {
+  // do something with `req` or `res`
+  next()
 }
 ```
 
-#### POST /sign-in
+Almost all middlewares will have `(req, res, next)` as parameters. `req` and
+`res` are the standard Express request and response objects. `next` is a
+function that every middleware must invoke to pass control on to the next
+middleware in the chain. Otherwise, the request will hang and the client won't
+get a response!
 
-Request:
+In the case of our to-do API though, we'll use a pre-existing middleware from an
+NPM package instead of writing our own.
+
+## Our Express API Template
+
+Now that we've taken a look at some simpler Express apps, let's see a real one!
+This repo includeds a copy of our `express-api-template`. It's a minimal but
+full-featured Express API. It comes with token-based authentication, error
+handling, and a set of example routes for you to reference as you build your
+own routes.
+
+## Lab: Investigate Express API template
+
+Take a few minutes to read through the `express-api-template` 
+[README](https://git.generalassemb.ly/ga-wdi-boston/express-api-template#structure),
+particularly the section labelled "Structure". Then, with your team, begin
+looking around the code in this repo, starting with `server.js`.
+
+**Note:** Don't worry about `app/routes/example_routes.js` yet. We'll talk
+about that in detail together.
+
+Some questions to discuss with your teammates:
+
+- What middlewares can you identify in `server.js`?
+- Where do we add routes to the `app` object?
+- Is there anyting in the `app/models` directory that's not familar from the
+Mongoose lesson?
+- What NPM package are we using for authentication?
+- Which file is responsible for setting HTTP status codes when something goes
+wrong (e.g. 422, 500, 401)?
+- Where is the code that creates and stores tokens?
+
+We'll go over your responses to these questions together.
+
+## Building a Bookstore API
+
+We've been hired to write an API for a local bookstore, 'Book Before You Leap'.
+They have plans to expand in the next few years, and they'll probably rival
+Amazon. Therefore, we've chosen Express because it's hip, and Mongo because it's
+Web Scale™.
+
+Let's get acquainted with how we'll use Express.
+
+## Code-along: An Example Express Route Handler 
+
+First, let's peek at our routes, since that's the layer that decides which code
+to run for any given request. Open [`config/routes.js`](config/routes.js) and
+read through it. Look familiar?
+
+Have a look in the [`app`](app) directory. It looks a bit like Rails, too.
+
+In [`app/controllers/examples.js`](app/controllers/examples.js), we get our
+first taste of Express. What's the `(req, res, next)` signature on all our
+controller actions?
+
+The `req` object is a
+[http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage)
+object. The `res` object is
+[http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse)
+object. These are what we used in the node HTTP server. What about `next`?
+
+> More than one callback function can handle a route (make sure you specify the
+> next object).
+>
+> – [Express routing](http://expressjs.com/en/guide/routing.html)
+
+That means that there can be **more than one step** when processing a single
+request. In fact, that's how Express keeps boilerplate to a minimum; we did
+something similar with `before_filter`s in Rails. Common functionality, like
+error handling, can be extracted into a middleware and run on any request you
+like. However, you **must** use `next` to propagate errors onward.
+
+Likewise, `res.json` signals to Express that we're done working on our response.
+It's analogous to Rails' `render` method. If you don't use a **terminal
+handler**, Express will keep the connection open waiting for one. You and
+Express will both be frustrated and confused. Here's a list of terminal
+handlers. You will use `res.json` and `res.sendStatus` most frequently.
+
+| Response method      | What it means                                                                         |
+|:---------------------|:--------------------------------------------------------------------------------------|
+| `res.json(jsObject)` | Send a JSON response.                                                                 |
+| `res.redirect()`     | Redirect a request.                                                                   |
+| `res.sendStatus()`   | Set the response status code and send its string representation as the response body. |
+
+## Annotate Along: Index Action
+
+Let's practice reading unfamiliar code by annotating
+[`app/controllers/examples.js`](app/controllers/examples.js). As we read the
+index controller action, keep the following questions in mind.
+
+- What is the purpose of this action?
+- Does it need a singular or plural resource to build its response?
+- How is the action handling errors?
+- Why do we need to check for the existence of a record after querying?
+- Where do we get IDs from?
+- Where do we get data from when creating or updating a record?
+- Which terminal handler is used to send a response?
+
+## Demo: An Example Express Model
+
+Let's read [`app/models/example.js`](app/models/example.js) and answer the
+following questions together:
+
+- What library are we using to model our resources? Does it have anything to
+  do with Express?
+- What does the underscore denote in `_owner`?
+- Where should we go to find out more about an owner?
+- Why aren't we using an arrow function for the virtual attribute `length`?
+
+## CURL Gotchas
+
+We'll be using a lot of curl requests as we test our API, so it's important to
+remember some of the common pitfalls in writing and running curl requests.
+
+1. The following **are not** valid in a curl request:
+    - Trailing commas in the json body.
+    - Comments after the `curl` keyword.
+    - Missing back slashes after each option.
+
+1. We use constants in our curl requests, which are in `CAPITAL_LETTERS`.
+    Your curl request will not work correctly if you don't assign values to
+    those constants. (i.e. `TITLE='Ancillary Justice'`).
+    - Spaces between values assigned to variables in the terminal **are not**
+      valid and **will not** run your curl script.
+
+## Code-Along: `GET /books`
+
+**Visitors to the client web application should be able to see all the books**
+**without being logged in.**
+
+We will need to write a controller action and a test script.
+
+Expected response:
 
 ```sh
-curl --include --request POST http://localhost:4741/sign-in \
-  --header "Content-Type: application/json" \
-  --data '{
-    "credentials": {
-      "email": "an@example.email",
-      "password": "an example password"
-    }
-  }'
-```
-
-```sh
-scripts/sign-in.sh
-```
-
-Response:
-
-```md
 HTTP/1.1 200 OK
+X-Powered-By: Express
 Content-Type: application/json; charset=utf-8
 
 {
-  "user": {
-    "id": 1,
-    "email": "an@example.email",
-    "token": "33ad6372f795694b333ec5f329ebeaaa"
+  "books": [
+    {
+      "_id": "56df974ec19957cb0d836c4c",
+      "updatedAt": "2016-03-09T03:23:58.000Z",
+      "createdAt": "2016-03-09T03:23:58.000Z",
+      "_owner": "56df9716c19957cb0d836c4a",
+      "title": "Between the World and Me",
+      "author": "Ta-Nehisi Coates",
+      "originalLanguage": "English",
+      "firstPublished": 1999
+      "__v": 0
+    },
+    {
+      "_id": "56df974ec19957cb0d836c4d",
+      "updatedAt": "2016-03-09T03:23:58.000Z",
+      "createdAt": "2016-03-09T03:23:58.000Z",
+      "_owner": "56df9716c19957cb0d836c4a",
+      "title": "Invisible Monsters",
+      "author": "Chuck Palahniuk",
+      "originalLanguage": "Spanish",
+      "firstPublished": 1843      "__v": 0
+    }
+  ]
+}
+```
+
+## Code-Along: Add Books to the database
+
+Run the load-books script using `node bin/load-books.js`. You'll notice an
+error. We'll fix it by creating a user and adding their ID to our books.
+
+## Annotate-Along: `GET /examples/:id`
+
+## Code-Along: `GET /books/:id`
+
+**Visitors to the client web application should be able to see any book without**
+**being logged in.**
+
+You will need to write a controller action and a test script.
+
+Expected response:
+
+```sh
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+
+{
+  "book": {
+    "_id": "56df974ec19957cb0d836c4c",
+    "updatedAt": "2016-03-09T03:23:58.000Z",
+    "createdAt": "2016-03-09T03:23:58.000Z",
+    "_owner": "56df9716c19957cb0d836c4a",
+    "title": "Between the World and Me",
+    "author": "Ta-Nehisi Coates",
+    "originalLanguage": "English",
+    "firstPublished": 1999    "__v": 0
   }
 }
 ```
 
-#### PATCH /change-password/:id
+## Annotate-Along: `DELETE /examples/:id`
 
-Request:
+## Lab: `DELETE /books/:id`
+
+**Only authenticated users should be able to delete a book. They should not be**
+**able to delete other users' books.**
+
+You will need to write a controller action and a test script.
+
+Expected response:
 
 ```sh
-curl --include --request PATCH http://localhost:4741/change-password/$ID \
-  --header "Authorization: Token token=$TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "passwords": {
-      "old": "an example password",
-      "new": "super sekrit"
+HTTP/1.1 204 No Content
+X-Powered-By: Express
+```
+
+If a different user than the owner tries to make the change, you should instead
+see:
+
+```sh
+HTTP/1.1 404 Not Found
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+
+{
+  "error": {
+    "message": "404 Not Found",
+    "error": {
+      "name": "HttpError",
+      "status": 404,
+      "message": "404 Not Found"
     }
-  }'
+  }
+}
 ```
+
+## Annotate-Along: `PATCH /examples/:id`
+
+## Code-Along: `PATCH /books/:id`
+
+**Only authenticated users should be able to change a book. They should not be**
+**able to change other users' books.**
+
+You will need to write a controller action and a test script.
+
+Expected response:
 
 ```sh
-ID=1 TOKEN=33ad6372f795694b333ec5f329ebeaaa scripts/change-password.sh
-```
-
-Response:
-
-```md
 HTTP/1.1 204 No Content
+X-Powered-By: Express
 ```
 
-#### DELETE /sign-out/:id
+You may wish to retrieve the book you changed to check your work.
 
-Request:
+If a different user than the owner tries to make the change, you should instead
+see:
 
 ```sh
-curl --include --request DELETE http://localhost:4741/sign-out/$ID \
-  --header "Authorization: Token token=$TOKEN"
+HTTP/1.1 404 Not Found
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+
+{
+  "error": {
+    "message": "404 Not Found",
+    "error": {
+      "name": "HttpError",
+      "status": 404,
+      "message": "404 Not Found"
+    }
+  }
+}
 ```
+
+## Annotate-Along: `POST /examples`
+
+## Lab: `POST /books`
+
+**Only authenticated users should be able to create a book.**
+
+You will need to write a controller action and a test script in
+[`app/controllers/books.js`](app/controllers/books.js) and
+[`scripts/books/create.sh`](scripts/books/create.sh) respectively.
+
+Make sure to save a reference to the user that created the book so it can be
+used to check ownership.
+
+You're done when you see a response similar to this one:
+
+Expected response:
 
 ```sh
-ID=1 TOKEN=33ad6372f795694b333ec5f329ebeaaa scripts/sign-out.sh
+HTTP/1.1 201 Created
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+
+{
+  "book": {
+    "__v": 0,
+    "updatedAt": "2016-03-09T03:23:58.000Z",
+    "createdAt": "2016-03-09T03:23:58.000Z",
+    "_owner": "56df9716c19957cb0d836c4a",
+    "title": "Invisible Monsters",
+    "author": "Chuck Palahniuk",
+    "originalLanguage": "Spanish",
+    "firstPublished": 1843
+    "_id": "56df974ec19957cb0d836c4d",
+    "editable": true
+  }
+}
 ```
 
-Response:
+If an unauthenticated user tries to create a book, you should instead see:
 
-```md
-HTTP/1.1 204 No Content
+```sh
+HTTP/1.1 401 Unauthorized
+X-Powered-By: Express
+Content-Type: text/html; charset=utf-8
+
+HTTP Token: Access denied.
 ```
+
+## Bonus
+
+Write a node script to scaffold a controller.
+
+## Additional Resources
+
+- [Express - Node.js web application framework](http://expressjs.com/)
+- [Understanding Express.js](https://evanhahn.com/understanding-express/)
+- [ga-wdi-boston/express-api-template: Railsified express server](https://git.generalassemb.ly/ga-wdi-boston/express-api-template)
 
 ## [License](LICENSE)
 
-1.  All content is licensed under a CC­BY­NC­SA 4.0 license.
-1.  All software code is licensed under GNU GPLv3. For commercial use or
+1. All content is licensed under a CC­BY­NC­SA 4.0 license.
+1. All software code is licensed under GNU GPLv3. For commercial use or
     alternative licensing, please contact legal@ga.co.
