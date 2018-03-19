@@ -9,14 +9,21 @@ const Example = require('../models/example')
 // we'll use this to intercept any errors that get thrown and send them
 // back to the client with the appropriate status code
 const handle = require('../../lib/error_handler')
-// this method will be called before any action that modifies a resource
-// to ensure that the person modifying it is the owner
-const requireOwnership = require('../../lib/require_ownership')
+
+// this is a collection of methods that help us detect situations when we need
+// to throw a custom error
+const customErrors = require('../../lib/custom_errors')
+
+// we'll use this function to send 404 when non-existant document is requested
+const handle404 = customErrors.handle404
+// we'll use this function to send 401 when a user tries to modify a resource
+// that's owned by someone else
+const requireOwnership = customErrors.requireOwnership
 
 // passing this as a second argument to `router.<verb>` will make it
 // so that a token MUST be passed for that route to be available
 // it will also set `res.user`
-const requireToken = passport.authenticate('jwt', { session: false })
+const requireToken = passport.authenticate('bearer', { session: false })
 
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
@@ -43,6 +50,7 @@ router.post('/examples', requireToken, (req, res) => {
 router.get('/examples/:id', requireToken, (req, res) => {
   // req.params.id will be set based on the `:id` in the route
   Example.findById(req.params.id)
+    .then(handle404)
     // if `findById` is succesful, respond with 200 and "example" JSON
     .then(example => res.status(200).json({ example: example.toObject() }))
     // if an error occurs, pass it to the handler
@@ -73,6 +81,7 @@ router.patch('/examples/:id', requireToken, (req, res) => {
   delete req.body.example.owner
 
   Example.findById(req.params.id)
+    .then(handle404)
     .then(example => {
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current user isn't the owner
@@ -82,7 +91,7 @@ router.patch('/examples/:id', requireToken, (req, res) => {
       const updatedExample = Object.assign(example, req.body.example)
       // `updatedExample` is still a Mongoose document, so we can call `.save`
       // to persist changes to the DB
-      updatedExample.save()
+      return updatedExample.save()
     })
     // if that succeeded, return 204 and no JSON
     .then(() => res.sendStatus(204))
@@ -94,6 +103,7 @@ router.patch('/examples/:id', requireToken, (req, res) => {
 // DELETE /examples/5a7db6c74d55bc51bdf39793
 router.delete('/examples/:id', requireToken, (req, res) => {
   Example.findById(req.params.id)
+    .then(handle404)
     .then(example => {
       // throw an error if current user doesn't own `example`
       requireOwnership(req, example)

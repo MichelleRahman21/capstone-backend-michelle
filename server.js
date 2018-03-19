@@ -40,11 +40,18 @@ const app = express()
 // define port for API to run on
 const port = process.env.PORT || 4741
 
-// TEMPORARY DEBUGGER
-// app.use((req, res, next) => {
-//   console.log('HEADERS HERE', req.headers)
-//   next()
-// })
+// this middleware makes it so the client can use the Rails convention
+// of `Authorization: Token token=<token>` OR the Express convention of
+// `Authorization: Bearer <token>`
+app.use((req, res, next) => {
+  if (req.headers.authorization) {
+    const auth = req.headers.authorization
+    // if we find the Rails pattern in the header, replace it with the Express
+    // one before `passport` gets a look at the headers
+    req.headers.authorization = auth.replace('Token token=', 'Bearer ')
+  }
+  next()
+})
 
 // register passport authentication middleware
 app.use(auth)
@@ -63,4 +70,5 @@ app.listen(port, () => {
   console.log('listening on port ' + port)
 })
 
+// needed for testing
 module.exports = app
