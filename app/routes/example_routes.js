@@ -86,12 +86,8 @@ router.patch('/examples/:id', requireToken, (req, res) => {
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current user isn't the owner
       requireOwnership(req, example)
-      // Object.assign merges whatever changeds are in req.body
-      // into the example found on the previous line
-      const updatedExample = Object.assign(example, req.body.example)
-      // `updatedExample` is still a Mongoose document, so we can call `.save`
-      // to persist changes to the DB
-      return updatedExample.save()
+
+      return example.update(req.body.example)
     })
     // if that succeeded, return 204 and no JSON
     .then(() => res.sendStatus(204))
