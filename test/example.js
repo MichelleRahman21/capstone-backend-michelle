@@ -116,9 +116,6 @@ describe('Examples', () => {
         .end((e, res) => {
           res.should.have.status(422)
           res.should.be.a('object')
-          res.body.should.have.property('errors')
-          res.body.errors.should.have.property('title')
-          res.body.errors.title.should.have.property('kind').eql('required')
           done()
         })
     })
@@ -135,9 +132,6 @@ describe('Examples', () => {
         .end((e, res) => {
           res.should.have.status(422)
           res.should.be.a('object')
-          res.body.should.have.property('errors')
-          res.body.errors.should.have.property('text')
-          res.body.errors['text'].should.have.property('kind').eql('required')
           done()
         })
     })
