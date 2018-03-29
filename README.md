@@ -220,11 +220,10 @@ Let's practice reading unfamiliar code by annotating
 index action, keep the following questions in mind.
 
 - What is the purpose of this action?
-- Does it need a singular or plural resource to build its response?
 - How is the action handling errors?
-- Why do we need to check for the existence of a record after querying?
-- Where do we get IDs from?
-- Where do we get data from when creating or updating a record?
+- Can unauthenticated users access this action?
+- Does this action show all "examples", or just the ones that belong to the cu
+currently signed-in user?
 - Which terminal handler is used to send a response?
 
 ## Demo: An Example Express Model
@@ -234,9 +233,7 @@ following questions together:
 
 - What library are we using to model our resources? Does it have anything to
   do with Express?
-- What does the underscore denote in `_owner`?
 - Where should we go to find out more about an owner?
-- Why aren't we using an arrow function for the virtual attribute `length`?
 
 ## CURL Gotchas
 
@@ -259,7 +256,7 @@ remember some of the common pitfalls in writing and running curl requests.
 **Visitors to the client web application should be able to see all the books**
 **without being logged in.**
 
-We will need to write a controller action and a test script.
+We will need to write a route handler and a test script.
 
 Expected response:
 
@@ -274,7 +271,7 @@ Content-Type: application/json; charset=utf-8
       "_id": "56df974ec19957cb0d836c4c",
       "updatedAt": "2016-03-09T03:23:58.000Z",
       "createdAt": "2016-03-09T03:23:58.000Z",
-      "_owner": "56df9716c19957cb0d836c4a",
+      "owner": "56df9716c19957cb0d836c4a",
       "title": "Between the World and Me",
       "author": "Ta-Nehisi Coates",
       "originalLanguage": "English",
@@ -285,7 +282,7 @@ Content-Type: application/json; charset=utf-8
       "_id": "56df974ec19957cb0d836c4d",
       "updatedAt": "2016-03-09T03:23:58.000Z",
       "createdAt": "2016-03-09T03:23:58.000Z",
-      "_owner": "56df9716c19957cb0d836c4a",
+      "owner": "56df9716c19957cb0d836c4a",
       "title": "Invisible Monsters",
       "author": "Chuck Palahniuk",
       "originalLanguage": "Spanish",
@@ -307,7 +304,7 @@ error. We'll fix it by creating a user and adding their ID to our books.
 **Visitors to the client web application should be able to see any book without**
 **being logged in.**
 
-You will need to write a controller action and a test script.
+You will need to write a route handler and a test script.
 
 Expected response:
 
@@ -321,7 +318,7 @@ Content-Type: application/json; charset=utf-8
     "_id": "56df974ec19957cb0d836c4c",
     "updatedAt": "2016-03-09T03:23:58.000Z",
     "createdAt": "2016-03-09T03:23:58.000Z",
-    "_owner": "56df9716c19957cb0d836c4a",
+    "owner": "56df9716c19957cb0d836c4a",
     "title": "Between the World and Me",
     "author": "Ta-Nehisi Coates",
     "originalLanguage": "English",
@@ -337,7 +334,7 @@ Content-Type: application/json; charset=utf-8
 **Only authenticated users should be able to delete a book. They should not be**
 **able to delete other users' books.**
 
-You will need to write a controller action and a test script.
+You will need to write a route handler and a test script.
 
 Expected response:
 
@@ -350,20 +347,7 @@ If a different user than the owner tries to make the change, you should instead
 see:
 
 ```sh
-HTTP/1.1 404 Not Found
-X-Powered-By: Express
-Content-Type: application/json; charset=utf-8
-
-{
-  "error": {
-    "message": "404 Not Found",
-    "error": {
-      "name": "HttpError",
-      "status": 404,
-      "message": "404 Not Found"
-    }
-  }
-}
+TODO: REPLACE THIS WITH CORRECT ERROR MESSAGE
 ```
 
 ## Annotate-Along: `PATCH /examples/:id`
@@ -373,7 +357,7 @@ Content-Type: application/json; charset=utf-8
 **Only authenticated users should be able to change a book. They should not be**
 **able to change other users' books.**
 
-You will need to write a controller action and a test script.
+You will need to write a route handler and a test script.
 
 Expected response:
 
@@ -388,20 +372,7 @@ If a different user than the owner tries to make the change, you should instead
 see:
 
 ```sh
-HTTP/1.1 404 Not Found
-X-Powered-By: Express
-Content-Type: application/json; charset=utf-8
-
-{
-  "error": {
-    "message": "404 Not Found",
-    "error": {
-      "name": "HttpError",
-      "status": 404,
-      "message": "404 Not Found"
-    }
-  }
-}
+TODO: REPLACE WITH REAL ERROR MESSAGE
 ```
 
 ## Annotate-Along: `POST /examples`
@@ -410,9 +381,7 @@ Content-Type: application/json; charset=utf-8
 
 **Only authenticated users should be able to create a book.**
 
-You will need to write a controller action and a test script in
-[`app/controllers/books.js`](app/controllers/books.js) and
-[`scripts/books/create.sh`](scripts/books/create.sh) respectively.
+You will need to write a route handler and a test script.
 
 Make sure to save a reference to the user that created the book so it can be
 used to check ownership.
@@ -431,7 +400,7 @@ Content-Type: application/json; charset=utf-8
     "__v": 0,
     "updatedAt": "2016-03-09T03:23:58.000Z",
     "createdAt": "2016-03-09T03:23:58.000Z",
-    "_owner": "56df9716c19957cb0d836c4a",
+    "owner": "56df9716c19957cb0d836c4a",
     "title": "Invisible Monsters",
     "author": "Chuck Palahniuk",
     "originalLanguage": "Spanish",
@@ -454,7 +423,7 @@ HTTP Token: Access denied.
 
 ## Bonus
 
-Write a node script to scaffold a controller.
+Write a node script to scaffold a route handler.
 
 ## Additional Resources
 
