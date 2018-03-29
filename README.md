@@ -338,7 +338,7 @@ You will need to write a route handler and a test script.
 
 Expected response:
 
-```sh
+```
 HTTP/1.1 204 No Content
 X-Powered-By: Express
 ```
@@ -346,8 +346,16 @@ X-Powered-By: Express
 If a different user than the owner tries to make the change, you should instead
 see:
 
-```sh
-TODO: REPLACE THIS WITH CORRECT ERROR MESSAGE
+```
+HTTP/1.1 401 Unauthorized
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 111
+ETag: W/"6f-kZ8KCT7LKfkTau/j2iSIvjLlBpA"
+Date: Thu, 29 Mar 2018 19:38:29 GMT
+Connection: keep-alive
+
+{"name":"OwnershipError","message":"The provided token does not match the owner of this document","status":401}
 ```
 
 ## Annotate-Along: `PATCH /examples/:id`
@@ -361,7 +369,7 @@ You will need to write a route handler and a test script.
 
 Expected response:
 
-```sh
+```
 HTTP/1.1 204 No Content
 X-Powered-By: Express
 ```
@@ -371,8 +379,16 @@ You may wish to retrieve the book you changed to check your work.
 If a different user than the owner tries to make the change, you should instead
 see:
 
-```sh
-TODO: REPLACE WITH REAL ERROR MESSAGE
+```
+HTTP/1.1 401 Unauthorized
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 111
+ETag: W/"6f-kZ8KCT7LKfkTau/j2iSIvjLlBpA"
+Date: Thu, 29 Mar 2018 19:38:29 GMT
+Connection: keep-alive
+
+{"name":"OwnershipError","message":"The provided token does not match the owner of this document","status":401}
 ```
 
 ## Annotate-Along: `POST /examples`
@@ -416,9 +432,12 @@ If an unauthenticated user tries to create a book, you should instead see:
 ```sh
 HTTP/1.1 401 Unauthorized
 X-Powered-By: Express
-Content-Type: text/html; charset=utf-8
+WWW-Authenticate: Bearer realm="Users"
+Date: Thu, 29 Mar 2018 19:41:57 GMT
+Connection: keep-alive
+Content-Length: 12
 
-HTTP Token: Access denied.
+Unauthorized
 ```
 
 ## Bonus
@@ -429,7 +448,7 @@ Write a node script to scaffold a route handler.
 
 - [Express - Node.js web application framework](http://expressjs.com/)
 - [Understanding Express.js](https://evanhahn.com/understanding-express/)
-- [ga-wdi-boston/express-api-template: Railsified express server](https://git.generalassemb.ly/ga-wdi-boston/express-api-template)
+- [ga-wdi-boston/express-api-template: Minimal express server](https://git.generalassemb.ly/ga-wdi-boston/express-api-template)
 
 ## [License](LICENSE)
 
