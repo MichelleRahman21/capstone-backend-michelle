@@ -167,36 +167,41 @@ Web Scale™.
 
 Let's get acquainted with how we'll use Express.
 
-## Code-along: An Example Express Route Handler 
+## Demo: Express Routes at a Glance
 
-First, let's peek at our routes, since that's the layer that decides which code
-to run for any given request. Open [`config/routes.js`](config/routes.js) and
-read through it. Look familiar?
+Let's take a look at `app/routes/example_routes.js`. This is what we'll call a
+"route handler". It looks a bit like a Rails controller, but we won't call it a
+controller because it has more responsibilities -- it's kind of like a router,
+controller, and serializer all bundled up together. Remember, Express is highly
+_un_-opinionated, so Express apps are free to use whatever structure makes the
+most sense for a given project. We chose this pattern for the template because
+it puts all the behavior for a resource in one place in a transparent way.
 
-Have a look in the [`app`](app) directory. It looks a bit like Rails, too.
+There are lots of files being required here! Let's talk briefly about what each
+is for.
 
-In [`app/controllers/examples.js`](app/controllers/examples.js), we get our
-first taste of Express. What's the `(req, res, next)` signature on all our
-controller actions?
+After all the files are `require`ed, we call `express.Router()`. This method
+creates a new router object that we can attach a number of routes to, using
+the same syntax we used to attach routes to `app` in the previous examples.
+So, instead of `app.get('/hello')`, we'd do `router.get('/hello')`. This makes
+it so we only have to register one route per resource in `server.js`. Let's
+flip back to that file so we can see how these `router` objects are used.
 
-The `req` object is a
+Now, we'll look at the routes themselves. You may notice that each route takes
+a callback with the signature `(req, res)`. These are the same `req` and `res`
+that we've been working with all along!
+
+To get a little more specific, the `req` object is a
 [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage)
 object. The `res` object is
 [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse)
-object. These are what we used in the node HTTP server. What about `next`?
+object. Notice that the above links point to the NodeJS docs. These objects are
+actually native to Node, not Express, Express uses them everywhere.
 
-> More than one callback function can handle a route (make sure you specify the
-> next object).
->
-> – [Express routing](http://expressjs.com/en/guide/routing.html)
+You'll notice that almost all the routes have a call to `res.json`. What's
+that?
 
-That means that there can be **more than one step** when processing a single
-request. In fact, that's how Express keeps boilerplate to a minimum; we did
-something similar with `before_filter`s in Rails. Common functionality, like
-error handling, can be extracted into a middleware and run on any request you
-like. However, you **must** use `next` to propagate errors onward.
-
-Likewise, `res.json` signals to Express that we're done working on our response.
+`res.json` signals to Express that we're done working on our response.
 It's analogous to Rails' `render` method. If you don't use a **terminal
 handler**, Express will keep the connection open waiting for one. You and
 Express will both be frustrated and confused. Here's a list of terminal
@@ -211,8 +216,8 @@ handlers. You will use `res.json` and `res.sendStatus` most frequently.
 ## Annotate Along: Index Action
 
 Let's practice reading unfamiliar code by annotating
-[`app/controllers/examples.js`](app/controllers/examples.js). As we read the
-index controller action, keep the following questions in mind.
+[`app/routes/example_routes.js`](app/routes/example_routes.js). As we read the
+index action, keep the following questions in mind.
 
 - What is the purpose of this action?
 - Does it need a singular or plural resource to build its response?
