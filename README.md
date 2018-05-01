@@ -233,22 +233,6 @@ following questions together:
   do with Express?
 - Where should we go to find out more about an owner?
 
-## CURL Gotchas
-
-We'll be using a lot of curl requests as we test our API, so it's important to
-remember some of the common pitfalls in writing and running curl requests.
-
-1. The following **are not** valid in a curl request:
-    - Trailing commas in the json body.
-    - Comments after the `curl` keyword.
-    - Missing back slashes after each option.
-
-1. We use constants in our curl requests, which are in `CAPITAL_LETTERS`.
-    Your curl request will not work correctly if you don't assign values to
-    those constants. (i.e. `TITLE='Ancillary Justice'`).
-    - Spaces between values assigned to variables in the terminal **are not**
-      valid and **will not** run your curl script.
-
 ## Code-Along: `GET /books`
 
 **Visitors to the client web application should be able to see all the books**
