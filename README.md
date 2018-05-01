@@ -30,15 +30,15 @@ By the end of this, developers should be able to:
  ```
 1. Install Nodemon by `npm install --global nodemon`. Nodemon will reload the
 application on a change to any file in the application. To use Nodemon with the
-Express server, run `npm run dev-server`.
+Express server, run `npm run server`.
 
 ## Overview
 
-According to its maintainers: 
+According to its maintainers:
 
 ```
-Express is a minimal and flexible Node.js web application framework that 
-provides a robust set of features for web and mobile applications. 
+Express is a minimal and flexible Node.js web application framework that
+provides a robust set of features for web and mobile applications.
 ```
 
 Express, like Rails, can be used as an API. In fact, building APIs in Express,
@@ -102,7 +102,7 @@ To accept a POST request with data attached to it, we'll need to parse the body
 of the HTTP request into a JS object. Because Express is minimal and doesn't
 make assumptions about what its users will try to do with it, this isn't
 included by default. Luckily, Express is easy to extend with plugins called
-"middlewares". 
+"middlewares".
 
 [Middlewares](https://expressjs.com/en/guide/using-middleware.html) are
 functions that can operate on the `req` and `res` objects in an Express app
@@ -137,7 +137,7 @@ own routes.
 
 ## Lab: Investigate Express API template
 
-Take a few minutes to read through the `express-api-template` 
+Take a few minutes to read through the `express-api-template`
 [README](https://git.generalassemb.ly/ga-wdi-boston/express-api-template#structure),
 particularly the section labelled "Structure". Then, with your team, begin
 looking around the code in this repo, starting with `server.js`.

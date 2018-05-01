@@ -4,7 +4,6 @@ const passport = require('passport')
 const Example = require('../models/example')
 
 const handle = require('../../lib/error_handler')
-
 const customErrors = require('../../lib/custom_errors')
 
 const handle404 = customErrors.handle404
@@ -14,8 +13,22 @@ const requireToken = passport.authenticate('bearer', { session: false })
 
 const router = express.Router()
 
-// CREATE
-// POST /examples
+router.get('/examples', requireToken, (req, res) => {
+  Example.find()
+    .then(examples => {
+      return examples.map(example => example.toObject())
+    })
+    .then(examples => res.status(200).json({ examples: examples }))
+    .catch(err => handle(err, res))
+})
+
+router.get('/examples/:id', requireToken, (req, res) => {
+  Example.findById(req.params.id)
+    .then(handle404)
+    .then(example => res.status(200).json({ example: example.toObject() }))
+    .catch(err => handle(err, res))
+})
+
 router.post('/examples', requireToken, (req, res) => {
   req.body.example.owner = req.user.id
 
@@ -26,28 +39,6 @@ router.post('/examples', requireToken, (req, res) => {
     .catch(err => handle(err, res))
 })
 
-// SHOW
-// GET /examples/5a7db6c74d55bc51bdf39793
-router.get('/examples/:id', requireToken, (req, res) => {
-  Example.findById(req.params.id)
-    .then(handle404)
-    .then(example => res.status(200).json({ example: example.toObject() }))
-    .catch(err => handle(err, res))
-})
-
-// INDEX
-// GET /examples
-router.get('/examples', requireToken, (req, res) => {
-  Example.find()
-    .then(examples => {
-      return examples.map(example => example.toObject())
-    })
-    .then(examples => res.status(200).json({ examples: examples }))
-    .catch(err => handle(err, res))
-})
-
-// UPDATE
-// PATCH /examples/5a7db6c74d55bc51bdf39793
 router.patch('/examples/:id', requireToken, (req, res) => {
   delete req.body.example.owner
 
@@ -68,8 +59,6 @@ router.patch('/examples/:id', requireToken, (req, res) => {
     .catch(err => handle(err, res))
 })
 
-// DESTROY
-// DELETE /examples/5a7db6c74d55bc51bdf39793
 router.delete('/examples/:id', requireToken, (req, res) => {
   Example.findById(req.params.id)
     .then(handle404)

@@ -2,6 +2,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
+const cors = require('cors')
 
 // require route files
 const exampleRoutes = require('./app/routes/example_routes')
@@ -36,6 +37,10 @@ mongoose.connect(db, {
 
 // instantiate express application object
 const app = express()
+
+// set CORS headers on response from this API using the `cors` NPM package
+// `CLIENT_ORIGIN` is an environment variable that will be set on Heroku
+app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:7165' }))
 
 // define port for API to run on
 const port = process.env.PORT || 4741

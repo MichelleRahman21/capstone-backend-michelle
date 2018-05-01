@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt')
 const bcryptSaltRounds = 10
 
 const handle = require('../../lib/error_handler')
-const WrongPasswordError = require('../../lib/custom_errors').WrongPasswordError
+const BadParamsError = require('../../lib/custom_errors').BadParamsError
 
 const User = require('../models/user')
 
@@ -29,6 +29,13 @@ router.post('/sign-up', (req, res) => {
   // this returns a promise
   bcrypt.hash(req.body.credentials.password, bcryptSaltRounds)
     .then(hash => {
+      // make sure that the user didn't sign up with empty string password
+      // we have to do this inside the promise chain to be able to use the
+      // error handler
+      if (!req.body.credentials.password) {
+        throw new BadParamsError()
+      }
+
       // return necessary params to create a user
       return {
         email: req.body.credentials.email,
@@ -52,6 +59,10 @@ router.post('/sign-in', (req, res) => {
   // find a user based on the email that was passed
   User.findOne({ email: req.body.credentials.email })
     .then(user => {
+      // if we didn't find a user with that email, send 422
+      if (!user) {
+        throw new BadParamsError()
+      }
       // `bcrypt.compare` will return true if the result of hashing `pw`
       // is exactly equal to the hashed password stored in the DB
       return Promise.all([bcrypt.compare(pw, user.hashedPassword), user])
@@ -70,8 +81,8 @@ router.post('/sign-in', (req, res) => {
         return user.save()
       } else {
         // throw an error to trigger the error handler and end the promise chain
-        // this will send back 401 and a message about the wrong password
-        throw new WrongPasswordError()
+        // this will send back 422 and a message about sending wrong parameters
+        throw new BadParamsError()
       }
     })
     .then(user => {
