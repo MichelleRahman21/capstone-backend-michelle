@@ -439,7 +439,7 @@ Content-Length: 12
 Unauthorized
 ```
 
-## Bonus
+## Challenge
 
 Write a node script to scaffold a route handler.
 
