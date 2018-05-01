@@ -53,8 +53,7 @@ developing an API right away.
 
 ## Demo: "Hello World" API
 
-Let's take a look at a super simple Express application. Open up
-`lib/tiny_server.js`. This is a fully functional Express API, in just four
+Let's take a look at a super simple Express application. Open up [lib/tiny_server.js](lib/tiny_server.js). This is a fully functional Express API, in just four
 lines of code! We can run it like this:
 ```
 node lib/tiny_server.js
@@ -67,7 +66,7 @@ curl --include localhost:4741
 ## Code-along: Library API
 
 Most apps need to do a bit more than always sending back "Hello world". To get
-some more exposure to Express, let's build out a minimal API that that we can
+some more exposure to Express, let's build out a minimal API in [lib/medium_size_server.js](lib/medium_size_server.js) that that we can
 use to keep store books for a library. Because we haven't learned how
 to integrate MongoDB (or other databases) into Express yet, we'll just store our
 data in memory.
