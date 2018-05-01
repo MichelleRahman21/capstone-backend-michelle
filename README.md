@@ -11,7 +11,6 @@
 
 By the end of this, developers should be able to:
 
-- Develop an Express API, leveraging architectural conventions from Rails.
 - Write five CRUD endpoints for an API resource using Express, Mongoose, and
   JavaScript.
 - Prevent unauthorized users from creating or changing data through the API.
