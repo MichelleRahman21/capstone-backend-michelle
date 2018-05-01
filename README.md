@@ -123,8 +123,8 @@ function that every middleware must invoke to pass control on to the next
 middleware in the chain. Otherwise, the request will hang and the client won't
 get a response!
 
-In the case of our to-do API though, we'll use a pre-existing middleware from an
-NPM package instead of writing our own.
+In the case of our API though, we'll use a pre-existing middleware from an
+NPM package named [body-parser](https://www.npmjs.com/package/body-parser) instead of writing our own.
 
 ## Our Express API Template
 
@@ -448,7 +448,7 @@ Write a node script to scaffold a route handler.
 - [Express - Node.js web application framework](http://expressjs.com/)
 - [Understanding Express.js](https://evanhahn.com/understanding-express/)
 - [ga-wdi-boston/express-api-template: Minimal express server](https://git.generalassemb.ly/ga-wdi-boston/express-api-template)
-
+- [How body parser works](https://medium.com/@adamzerner/how-bodyparser-works-247897a93b90)
 ## [License](LICENSE)
 
 1. All content is licensed under a CC­BY­NC­SA 4.0 license.
