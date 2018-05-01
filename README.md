@@ -4,8 +4,8 @@
 
 ## Prerequisites
 
-- [node-http-server](https://git.generalassemb.ly/ga-wdi-boston/node-http-server)
-- [mongoose-crud](https://git.generalassemb.ly/ga-wdi-boston/mongoose-crud)
+- [node-api](https://git.generalassemb.ly/ga-wdi-boston/node-api)
+- [mongoose](https://git.generalassemb.ly/ga-wdi-boston/mongoose)
 
 ## Objectives
 
