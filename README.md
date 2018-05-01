@@ -128,7 +128,7 @@ NPM package named [body-parser](https://www.npmjs.com/package/body-parser) inste
 ## Our Express API Template
 
 Now that we've taken a look at some simpler Express apps, let's see a real one!
-This repo includeds a copy of our `express-api-template`. It's a minimal but
+This repo includeds a copy of our [express-api-template](https://git.generalassemb.ly/ga-wdi-boston/express-api-template). It's a minimal but
 full-featured Express API. It comes with token-based authentication, error
 handling, and a set of example routes for you to reference as you build your
 own routes.
