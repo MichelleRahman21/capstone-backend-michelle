@@ -65,19 +65,19 @@ And we can make a request to it like this:
 curl --include localhost:4741
 ```
 
-## Code-along: Simple to-do API
+## Code-along: Library API
 
 Most apps need to do a bit more than always sending back "Hello world". To get
 some more exposure to Express, let's build out a minimal API that that we can
-use to keep track of tasks that we intend to do. Because we haven't learned how
+use to keep store books for a library. Because we haven't learned how
 to integrate MongoDB (or other databases) into Express yet, we'll just store our
 data in memory.
 
 Our app will have three routes available:
-- `GET /tasks`: respond with JSON of all tasks, like `index` in Rails
-- `GET /tasks/:id`: respond with JSON of one task, like `show` in Rails
-- `POST /tasks`: accept JSON and create a task from it, then respond with
-the created tasks
+- `GET /books`: respond with JSON of all books, like `index` in Rails
+- `GET /books/:id`: respond with JSON of one book, like `show` in Rails
+- `POST /books`: accept JSON and create a book from it, then respond with
+the created books
 
 Our API we'll need more functionality than the previous example. Still, we'll
 recognize a lot of the same patterns. What were those `req` and `res` parameters
