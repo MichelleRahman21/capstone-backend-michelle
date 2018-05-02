@@ -4,14 +4,13 @@
 
 ## Prerequisites
 
-- [node-http-server](https://git.generalassemb.ly/ga-wdi-boston/node-http-server)
-- [mongoose-crud](https://git.generalassemb.ly/ga-wdi-boston/mongoose-crud)
+- [node-api](https://git.generalassemb.ly/ga-wdi-boston/node-api)
+- [mongoose](https://git.generalassemb.ly/ga-wdi-boston/mongoose)
 
 ## Objectives
 
 By the end of this, developers should be able to:
 
-- Develop an Express API, leveraging architectural conventions from Rails.
 - Write five CRUD endpoints for an API resource using Express, Mongoose, and
   JavaScript.
 - Prevent unauthorized users from creating or changing data through the API.
@@ -54,8 +53,7 @@ developing an API right away.
 
 ## Demo: "Hello World" API
 
-Let's take a look at a super simple Express application. Open up
-`lib/tiny_server.js`. This is a fully functional Express API, in just four
+Let's take a look at a super simple Express application. Open up [lib/tiny_server.js](lib/tiny_server.js). This is a fully functional Express API, in just four
 lines of code! We can run it like this:
 ```
 node lib/tiny_server.js
@@ -65,19 +63,19 @@ And we can make a request to it like this:
 curl --include localhost:4741
 ```
 
-## Code-along: Simple to-do API
+## Code-along: Library API
 
 Most apps need to do a bit more than always sending back "Hello world". To get
-some more exposure to Express, let's build out a minimal API that that we can
-use to keep track of tasks that we intend to do. Because we haven't learned how
+some more exposure to Express, let's build out a minimal API in [lib/medium_size_server.js](lib/medium_size_server.js) that that we can
+use to keep store books for a library. Because we haven't learned how
 to integrate MongoDB (or other databases) into Express yet, we'll just store our
 data in memory.
 
 Our app will have three routes available:
-- `GET /tasks`: respond with JSON of all tasks, like `index` in Rails
-- `GET /tasks/:id`: respond with JSON of one task, like `show` in Rails
-- `POST /tasks`: accept JSON and create a task from it, then respond with
-the created tasks
+- `GET /books`: respond with JSON of all books, like `index` in Rails
+- `GET /books/:id`: respond with JSON of one book, like `show` in Rails
+- `POST /books`: accept JSON and create a book from it, then respond with
+the created books
 
 Our API we'll need more functionality than the previous example. Still, we'll
 recognize a lot of the same patterns. What were those `req` and `res` parameters
@@ -124,13 +122,13 @@ function that every middleware must invoke to pass control on to the next
 middleware in the chain. Otherwise, the request will hang and the client won't
 get a response!
 
-In the case of our to-do API though, we'll use a pre-existing middleware from an
-NPM package instead of writing our own.
+In the case of our API though, we'll use a pre-existing middleware from an
+NPM package named [body-parser](https://www.npmjs.com/package/body-parser) instead of writing our own.
 
 ## Our Express API Template
 
 Now that we've taken a look at some simpler Express apps, let's see a real one!
-This repo includeds a copy of our `express-api-template`. It's a minimal but
+This repo includeds a copy of our [express-api-template](https://git.generalassemb.ly/ga-wdi-boston/express-api-template). It's a minimal but
 full-featured Express API. It comes with token-based authentication, error
 handling, and a set of example routes for you to reference as you build your
 own routes.
@@ -234,22 +232,6 @@ following questions together:
 - What library are we using to model our resources? Does it have anything to
   do with Express?
 - Where should we go to find out more about an owner?
-
-## CURL Gotchas
-
-We'll be using a lot of curl requests as we test our API, so it's important to
-remember some of the common pitfalls in writing and running curl requests.
-
-1. The following **are not** valid in a curl request:
-    - Trailing commas in the json body.
-    - Comments after the `curl` keyword.
-    - Missing back slashes after each option.
-
-1. We use constants in our curl requests, which are in `CAPITAL_LETTERS`.
-    Your curl request will not work correctly if you don't assign values to
-    those constants. (i.e. `TITLE='Ancillary Justice'`).
-    - Spaces between values assigned to variables in the terminal **are not**
-      valid and **will not** run your curl script.
 
 ## Code-Along: `GET /books`
 
@@ -440,7 +422,7 @@ Content-Length: 12
 Unauthorized
 ```
 
-## Bonus
+## Challenge
 
 Write a node script to scaffold a route handler.
 
@@ -449,7 +431,7 @@ Write a node script to scaffold a route handler.
 - [Express - Node.js web application framework](http://expressjs.com/)
 - [Understanding Express.js](https://evanhahn.com/understanding-express/)
 - [ga-wdi-boston/express-api-template: Minimal express server](https://git.generalassemb.ly/ga-wdi-boston/express-api-template)
-
+- [How body parser works](https://medium.com/@adamzerner/how-bodyparser-works-247897a93b90)
 ## [License](LICENSE)
 
 1. All content is licensed under a CC­BY­NC­SA 4.0 license.
