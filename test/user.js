@@ -1,22 +1,16 @@
 process.env.TESTENV = true
 
-const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 const User = require('../app/models/user')
 
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const server = require('../server')
-const should = chai.should()
+chai.should()
 
 chai.use(chaiHttp)
 
-after(done => {
-  User.remove({})
-    .then(() => done())
-    .catch(() => done())
-})
-
-const userParams = {
+const user = {
   credentials: {
     email: 'foo@bar.baz',
     password: '12345',
@@ -24,47 +18,91 @@ const userParams = {
   }
 }
 
-const updatedParams = {
+const updatedUser = {
   credentials: {
     email: 'foo@bar.baz',
     password: '54321'
   }
 }
 
-describe('Users', () => {
-  describe('POST /sign-up', () => {
-    beforeEach(done => {
-      User.remove({})
-        .then(() => done())
-        .catch(() => done())
-    })
+const nonMatchingPasswordsUser = {
+  credentials: {
+    email: 'dont@type.good',
+    password: '12345',
+    password_confirmation: '54321'
+  }
+}
 
-    it('should create a user if params are valid', done => {
+let token = 'notrealtoken'
+
+describe('Users', () => {
+  beforeEach(done => {
+    User.deleteMany({})
+      .then(() => bcrypt.hash(user.credentials.password, 10))
+      .then(hash => {
+        return {
+          email: user.credentials.email,
+          hashedPassword: hash,
+          token
+        }
+      })
+      .then(pojo => User.create(pojo))
+      .then(() => done())
+      .catch(() => done())
+  })
+
+  after(done => {
+    User.remove({})
+      .then(() => done())
+      .catch(() => done())
+  })
+
+  describe('POST /sign-up', () => {
+    it('should reject users with duplicate emails', done => {
       chai.request(server)
         .post('/sign-up')
-        .send(userParams)
+        .send(user)
         .end((e, res) => {
-          res.should.have.status(201)
-          res.should.be.a('object')
-          res.body.should.have.property('user')
-          res.body.user.should.have.property('email').eql(userParams.credentials.email)
+          res.should.have.status(422)
           done()
         })
     })
 
-    it('should reject users with duplicate emails', done => {
-      const params = userParams
-      params.credentials.hashedPassword = 'this is not very secure'
+    it('should reject an empty string password', done => {
+      chai.request(server)
+        .post('/sign-up')
+        .send(Object.assign({}, user.credentials, { password: '', password_confirmation: '' }))
+        .end((e, res) => {
+          res.should.have.status(422)
+          res.should.be.a('object')
+          res.body.should.have.property('name')
+          done()
+        })
+    })
 
-      User.create(userParams)
+    it('should reject users with non-matching passwords', done => {
+      chai.request(server)
+        .post('/sign-up')
+        .send(nonMatchingPasswordsUser)
+        .end((e, res) => {
+          res.should.have.status(422)
+          res.should.be.a('object')
+          res.body.should.have.property('name')
+          done()
+        })
+    })
+
+    it('should create a user if params are valid', done => {
+      User.remove({})
         .then(() => {
           chai.request(server)
             .post('/sign-up')
-            .send(userParams)
+            .send(user)
             .end((e, res) => {
-              res.should.have.status(422)
+              res.should.have.status(201)
               res.should.be.a('object')
-              res.body.should.have.property('errmsg')
+              res.body.should.have.property('user')
+              res.body.user.should.have.property('email').eql(user.credentials.email)
               done()
             })
         })
@@ -73,25 +111,10 @@ describe('Users', () => {
   })
 
   describe('POST /sign-in', () => {
-    let token
-
-    before(done => {
-      chai.request(server)
-        .post('/sign-up')
-        .send(userParams)
-        .end(() => done())
-    })
-
-    after(done => {
-      User.remove({})
-        .then(() => done())
-        .catch(() => done())
-    })
-
     it('should return a token when given valid credentials', done => {
       chai.request(server)
         .post('/sign-in')
-        .send(userParams)
+        .send(user)
         .end((e, res) => {
           res.should.have.status(201)
           res.should.be.a('object')
@@ -99,7 +122,6 @@ describe('Users', () => {
           res.body.user.should.be.a('object')
           res.body.user.should.have.property('token')
           res.body.user.token.should.be.a('string')
-          token = res.body.user.token
           done()
         })
     })
@@ -107,7 +129,7 @@ describe('Users', () => {
     it('the token should allow you to GET /examples', done => {
       chai.request(server)
         .get('/examples')
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Token token=${token}`)
         .end((e, res) => {
           res.should.have.status(200)
           res.body.should.have.property('examples')
@@ -118,76 +140,65 @@ describe('Users', () => {
   })
 
   describe('PATCH /change-password', () => {
-    let token
-
     const changePwParams = {
       passwords: {
-        old: '12345',
+        old: user.credentials.password,
         new: '54321'
       }
     }
 
-    before(done => {
-      chai.request(server)
-        .post('/sign-up')
-        .send(userParams)
-        .end(() => done())
-    })
+    const badChangePwParams = {
+      passwords: {
+        old: 'WRONG',
+        new: '54321'
+      }
+    }
 
-    before(done => {
+    it('fails when the wrong password is provided', done => {
       chai.request(server)
-        .post('/sign-in')
-        .send(userParams)
+        .patch('/change-password')
+        .set('Authorization', `Bearer ${token}`)
+        .send(badChangePwParams)
         .end((e, res) => {
-          token = res.body.user.token
+          res.should.have.status(422)
           done()
         })
     })
 
-    it('is successful', done => {
+    it('fails when the new password is an empty string', done => {
+      chai.request(server)
+        .patch('/change-password')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ passwords: { old: '54321', new: '' } })
+        .end((e, res) => {
+          res.should.have.status(422)
+          done()
+        })
+    })
+
+    it('is successful and changes the password', done => {
       chai.request(server)
         .patch('/change-password')
         .set('Authorization', `Bearer ${token}`)
         .send(changePwParams)
         .end((e, res) => {
           res.should.have.status(204)
-          done()
         })
-    })
-
-    it('changes the password', done => {
-      chai.request(server)
-        .post('/sign-in')
-        .send(updatedParams)
-        .end((e, res) => {
-          res.should.have.status(201)
-          res.body.user.should.have.property('token')
-          res.body.user.token.should.be.a('string')
-          done()
+        .then(() => {
+          chai.request(server)
+            .post('/sign-in')
+            .send(updatedUser)
+            .end((e, res) => {
+              res.should.have.status(201)
+              res.body.user.should.have.property('token')
+              res.body.user.token.should.be.a('string')
+              done()
+            })
         })
     })
   })
 
   describe('DELETE /sign-out', () => {
-    let token
-
-    before(done => {
-      chai.request(server)
-        .post('/sign-up')
-        .send(updatedParams)
-        .end(() => done())
-    })
-
-    before(done => {
-      chai.request(server)
-        .post('/sign-in')
-        .send(updatedParams)
-        .end((e, res) => {
-          token = res.body.user.token
-          done()
-        })
-    })
-
     it('returns 204', done => {
       chai.request(server)
         .delete('/sign-out')
