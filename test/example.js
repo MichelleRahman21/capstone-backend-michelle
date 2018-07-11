@@ -1,6 +1,5 @@
 process.env.TESTENV = true
 
-let mongoose = require("mongoose")
 let Example = require('../app/models/example.js')
 let User = require('../app/models/user')
 
@@ -9,7 +8,7 @@ const crypto = require('crypto')
 let chai = require('chai')
 let chaiHttp = require('chai-http')
 let server = require('../server')
-let should = chai.should()
+chai.should()
 
 chai.use(chaiHttp)
 
@@ -175,10 +174,8 @@ describe('Examples', () => {
     }
 
     before(async function () {
-      await Example.create(Object.assign(exampleParams, { owner: userId }))
-        .then(record => {
-          exampleId = record._id
-        })
+      const record = await Example.create(Object.assign(exampleParams, { owner: userId }))
+      exampleId = record._id
     })
 
     it('must be owned by the user', done => {
