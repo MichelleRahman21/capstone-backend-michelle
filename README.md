@@ -22,8 +22,8 @@ By the end of this, developers should be able to:
 1. Install dependencies with `npm install`.
 1. Verify mongodb is running with `brew services list`
    (Run `brew services restart mongodb` if not).
-1.  From the root of your repository, run the following commands. They will set
-    a SECRET_KEY for development and testing.
+1. From the root of your repository, run the following commands. They will set
+   a SECRET_KEY for development and testing.
 
  ```sh
  echo SECRET_KEY_BASE_TEST=$(openssl rand -base64 66 | tr -d '\n') >> .env
@@ -34,10 +34,8 @@ By the end of this, developers should be able to:
 
 According to its maintainers:
 
-```
-Express is a minimal and flexible Node.js web application framework that
-provides a robust set of features for web and mobile applications.
-```
+> Express is a minimal and flexible Node.js web application framework that
+> provides a robust set of features for web and mobile applications.
 
 Express, like Rails, can be used as an API. In fact, building APIs in Express,
 especially those that use MongoDB for persistence, led to the rising popularity
@@ -52,29 +50,35 @@ developing an API right away.
 
 ## Demo: "Hello World" API
 
-Let's take a look at a super simple Express application. Open up [lib/tiny_server.js](lib/tiny_server.js). This is a fully functional Express API, in just four
-lines of code! We can run it like this:
-```
+Let's take a look at a super simple Express application. Open up
+[lib/tiny_server.js](lib/tiny_server.js). This is a fully functional Express
+API, in just four lines of code! We can run it like this:
+
+```sh
 node lib/tiny_server.js
 ```
+
 And we can make a request to it like this:
-```
+
+```sh
 curl --include localhost:4741
 ```
 
 ## Code-along: Library API
 
 Most apps need to do a bit more than always sending back "Hello world". To get
-some more exposure to Express, let's build out a minimal API in [lib/medium_size_server.js](lib/medium_size_server.js) that that we can
+some more exposure to Express, let's build out a minimal API in
+[lib/medium_size_server.js](lib/medium_size_server.js) that that we can
 use to keep store books for a library. Because we haven't learned how
 to integrate MongoDB (or other databases) into Express yet, we'll just store our
 data in memory.
 
 Our app will have three routes available:
-- `GET /books`: respond with JSON of all books, like `index` in Rails
-- `GET /books/:id`: respond with JSON of one book, like `show` in Rails
+
+- `GET /books`: respond with JSON of all books, like `index` in Rails.
+- `GET /books/:id`: respond with JSON of one book, like `show` in Rails.
 - `POST /books`: accept JSON and create a book from it, then respond with
-the created books
+  the created books.
 
 Our API we'll need more functionality than the previous example. Still, we'll
 recognize a lot of the same patterns. What were those `req` and `res` parameters
@@ -122,12 +126,16 @@ middleware in the chain. Otherwise, the request will hang and the client won't
 get a response!
 
 In the case of our API though, we'll use a pre-existing middleware from an
-NPM package named [body-parser](https://www.npmjs.com/package/body-parser) instead of writing our own.
+NPM package named [body-parser](https://www.npmjs.com/package/body-parser)
+instead of writing our own.
 
 ## Our Express API Template
 
 Now that we've taken a look at some simpler Express apps, let's see a real one!
-This repo includeds a copy of our [express-api-template](https://git.generalassemb.ly/ga-wdi-boston/express-api-template). It's a minimal but
+This repo includeds a copy of our
+[express-api-template](https://git.generalassemb.ly/ga-wdi-boston/express-api-template).
+
+It's a minimal but
 full-featured Express API. It comes with token-based authentication, error
 handling, and a set of example routes for you to reference as you build your
 own routes.
@@ -147,10 +155,10 @@ Some questions to discuss with your teammates:
 - What middlewares can you identify in `server.js`?
 - Where do we add routes to the `app` object?
 - Is there anyting in the `app/models` directory that's not familar from the
-Mongoose lesson?
+  Mongoose lesson?
 - What NPM package are we using for authentication?
 - Which file is responsible for setting HTTP status codes when something goes
-wrong (e.g. 422, 500, 401)?
+  wrong (e.g. 422, 500, 401)?
 - Where is the code that creates and stores tokens?
 
 We'll go over your responses to these questions together.
@@ -220,7 +228,7 @@ index action, keep the following questions in mind.
 - How is the action handling errors?
 - Can unauthenticated users access this action?
 - Does this action show all "examples", or just the ones that belong to the cu
-currently signed-in user?
+  currently signed-in user?
 - Which terminal handler is used to send a response?
 
 ## Demo: An Example Express Model
@@ -282,8 +290,7 @@ error. We'll fix it by creating a user and adding their ID to our books.
 
 ## Code-Along: `GET /books/:id`
 
-**Visitors to the client web application should be able to see any book without**
-**being logged in.**
+### Visitors to the client web application should be able to see any book without being logged in.
 
 You will need to write a route handler and a test script.
 
@@ -319,7 +326,7 @@ You will need to write a route handler and a test script.
 
 Expected response:
 
-```
+```sh
 HTTP/1.1 204 No Content
 X-Powered-By: Express
 ```
@@ -327,7 +334,7 @@ X-Powered-By: Express
 If a different user than the owner tries to make the change, you should instead
 see:
 
-```
+```sh
 HTTP/1.1 401 Unauthorized
 X-Powered-By: Express
 Content-Type: application/json; charset=utf-8
@@ -350,7 +357,7 @@ You will need to write a route handler and a test script.
 
 Expected response:
 
-```
+```sh
 HTTP/1.1 204 No Content
 X-Powered-By: Express
 ```
@@ -360,7 +367,7 @@ You may wish to retrieve the book you changed to check your work.
 If a different user than the owner tries to make the change, you should instead
 see:
 
-```
+```sh
 HTTP/1.1 401 Unauthorized
 X-Powered-By: Express
 Content-Type: application/json; charset=utf-8
@@ -431,6 +438,7 @@ Write a node script to scaffold a route handler.
 - [Understanding Express.js](https://evanhahn.com/understanding-express/)
 - [ga-wdi-boston/express-api-template: Minimal express server](https://git.generalassemb.ly/ga-wdi-boston/express-api-template)
 - [How body parser works](https://medium.com/@adamzerner/how-bodyparser-works-247897a93b90)
+
 ## [License](LICENSE)
 
 1. All content is licensed under a CC­BY­NC­SA 4.0 license.
