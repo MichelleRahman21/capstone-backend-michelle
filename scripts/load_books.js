@@ -2,6 +2,9 @@ const mongoose = require('mongoose')
 const fs = require('fs')
 const dbAdress = require('../config/db')
 
+const bcrypt = require('bcrypt')
+const bcryptSaltRounds = 10
+
 const User = require('../app/models/user.js')
 const Book = require('../app/models/book.js')
 
@@ -25,7 +28,7 @@ const parseBooks = () => {
 
     parser.on('readable', () => {
       let record
-      while (record = parser.read()) { // eslint-disable-line 
+      while (record = parser.read()) { // eslint-disable-line
         books.push(record)
       }
     })
@@ -36,27 +39,31 @@ const parseBooks = () => {
   })
 }
 
-User.remove({})
-  .then(() => Book.remove({}))
-  .then(() => {
-    return User.create({ email: 'example@user.org', hashedPassword: '12345' })
-  })
-  .then(user => Promise.all([ user, parseBooks() ]))
-  .then(data => {
-    let [user, books] = data
+if (process.argv[2] && process.argv[3]) {
+  bcrypt.hash(process.argv[3], bcryptSaltRounds)
+    .then((pword) => {
+      return User.create({email: process.argv[2], hashedPassword: pword})
+    })
+    .then(user => Promise.all([ user, parseBooks() ]))
+    .then(data => {
+      let [user, books] = data
 
-    return Promise.all(books.map(book => {
-      return Book.create({
-        title: book.title,
-        author: book.author,
-        originalLanguage: book.original_language,
-        firstPublished: book.first_published,
-        owner: user._id
-      })
-    }))
-  })
-  .then(books => {
-    console.log(`Created ${books.length} books!`)
-  })
-  .catch(console.error)
-  .then(done)
+      return Promise.all(books.map(book => {
+        return Book.create({
+          title: book.title,
+          author: book.author,
+          originalLanguage: book.original_language,
+          firstPublished: book.first_published,
+          owner: user._id
+        })
+      }))
+    })
+    .then(books => {
+      console.log(`Created ${books.length} books!`)
+    })
+    .catch(console.error)
+    .then(done)
+} else {
+  console.log('Script requires email and password')
+  done()
+}
