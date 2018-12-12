@@ -283,7 +283,7 @@ Content-Type: application/json; charset=utf-8
 
 ## Code-Along: Add Books to the database
 
-Run the load-books script using `node bin/load-books.js`. You'll notice an
+Run the load-books script using `node scripts/load_books.js`. You'll notice an
 error. We'll fix it by creating a user and adding their ID to our books.
 
 ## Annotate-Along: `GET /examples/:id`
