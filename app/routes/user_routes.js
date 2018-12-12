@@ -5,8 +5,11 @@ const bcrypt = require('bcrypt')
 
 const bcryptSaltRounds = 10
 
+const errors = require('../../lib/custom_errors')
 const handle = require('../../lib/error_handler')
-const BadParamsError = require('../../lib/custom_errors').BadParamsError
+
+const BadParamsError = errors.BadParamsError
+const BadCredentialsError = errors.BadCredentialsError
 
 const User = require('../models/user')
 
@@ -46,7 +49,7 @@ router.post('/sign-in', (req, res) => {
   User.findOne({ email: req.body.credentials.email })
     .then(record => {
       if (!record) {
-        throw new BadParamsError()
+        throw new BadCredentialsError()
       }
       user = record
       return bcrypt.compare(pw, user.hashedPassword)
@@ -57,7 +60,7 @@ router.post('/sign-in', (req, res) => {
         user.token = token
         return user.save()
       } else {
-        throw new BadParamsError()
+        throw new BadCredentialsError()
       }
     })
     .then(user => {
