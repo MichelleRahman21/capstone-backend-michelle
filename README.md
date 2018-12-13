@@ -297,8 +297,15 @@ Content-Type: application/json; charset=utf-8
 
 ## Code-Along: Add Books to the database
 
-Run the load-books script using `node scripts/load_books.js`. You'll notice an
-error. We'll fix it by creating a user and adding their ID to our books.
+Because books are "owned" by users, we can't create books without first creating
+users. Luckily, the script will do that for us! We just need to pass it an email
+and password and it will create a user with those credentials.
+
+Run the load-books script like this:
+
+```
+node scripts/load_books.js bob@website mypassword
+```
 
 ## Annotate-Along: `GET /examples/:id`
 
