@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const fs = require('fs')
-const dbAdress = require('../config/db')
+const dbAddress = require('../config/db')
 
 const bcrypt = require('bcrypt')
 const bcryptSaltRounds = 10
@@ -9,7 +9,7 @@ const User = require('../app/models/user.js')
 const Book = require('../app/models/book.js')
 
 mongoose.Promise = global.Promise
-mongoose.connect(dbAdress, {
+mongoose.connect(dbAddress, {
   useMongoClient: true
 })
 
