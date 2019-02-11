@@ -14,10 +14,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^3.0.3",
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
-    "csv": "^3.1.0",
+    "csv": "^5.1.1",
     "dotenv": "^4.0.0",
     "express": "^4.16.1",
     "jsonwebtoken": "^8.1.1",
