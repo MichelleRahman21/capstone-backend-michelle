@@ -22,13 +22,6 @@ By the end of this, developers should be able to:
 1. Install dependencies with `npm install`.
 1. Verify mongodb is running with `brew services list`
    (Run `brew services restart mongodb` if not).
-1. From the root of your repository, run the following commands. They will set
-   a SECRET_KEY for development and testing.
-
- ```sh
- echo SECRET_KEY_BASE_TEST=$(openssl rand -base64 66 | tr -d '\n') >> .env
- echo SECRET_KEY_BASE_DEVELOPMENT=$(openssl rand -base64 66 | tr -d '\n') >> .env
- ```
 
 ## Overview
 
