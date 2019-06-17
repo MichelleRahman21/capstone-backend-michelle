@@ -61,7 +61,7 @@ curl --include localhost:4741
 
 Most apps need to do a bit more than always sending back "Hello world". To get
 some more exposure to Express, let's build out a minimal API in
-[lib/medium_size_server.js](lib/medium_size_server.js) that that we can
+[lib/medium_size_server.js](lib/medium_size_server.js) that we can
 use to keep store books for a library. Because we haven't learned how
 to integrate MongoDB (or other databases) into Express yet, we'll just store our
 data in memory.
@@ -71,10 +71,10 @@ Our app will have three routes available:
 - `GET /books`: respond with JSON of all books, like `index` in Rails.
 - `GET /books/:id`: respond with JSON of one book, like `show` in Rails.
 - `POST /books`: accept JSON and create a book from it, then respond with
-  the created books.
+  the created book.
 
-Our API we'll need more functionality than the previous example. Still, we'll
-recognize a lot of the same patterns. What were those `req` and `res` parameters
+Our API we'll need more functionality than the previous example. Nonetheless, we'll
+utilize a lot of the same patterns. For example, what were those `req` and `res` parameters
 exactly?
 
 `req` stands for request, and it contains lots of info about the incoming HTTP
@@ -125,7 +125,7 @@ instead of writing our own.
 ## Our Express API Template
 
 Now that we've taken a look at some simpler Express apps, let's see a real one!
-This repo includeds a copy of our
+This repo includes a copy of our
 [express-api-template](https://git.generalassemb.ly/ga-wdi-boston/express-api-template).
 
 It's a minimal but
@@ -176,25 +176,25 @@ most sense for a given project. We chose this pattern for the template because
 it puts all the behavior for a resource in one place in a transparent way.
 
 There are lots of files being required here! Let's talk briefly about what each
-is for.
+does.
 
 After all the files are `require`ed, we call `express.Router()`. This method
-creates a new router object that we can attach a number of routes to, using
+creates a new router object that we can attach a number of routes to using
 the same syntax we used to attach routes to `app` in the previous examples.
 So, instead of `app.get('/hello')`, we'd do `router.get('/hello')`. This makes
 it so we only have to register one route per resource in `server.js`. Let's
 flip back to that file so we can see how these `router` objects are used.
 
-Now, we'll look at the routes themselves. You may notice that each route takes
+Now we'll look at the routes themselves. You may notice that each route takes
 a callback with the signature `(req, res)`. These are the same `req` and `res`
-that we've been working with all along!
+that we used earlier.
 
 To get a little more specific, the `req` object is a
 [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage)
 object. The `res` object is
 [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse)
 object. Notice that the above links point to the NodeJS docs. These objects are
-actually native to Node, not Express, Express uses them everywhere.
+actually native to Node, not Express.
 
 You'll notice that almost all the routes have a call to `res.json`. What's
 that?
@@ -220,7 +220,7 @@ index action, keep the following questions in mind.
 - What is the purpose of this action?
 - How is the action handling errors?
 - Can unauthenticated users access this action?
-- Does this action show all "examples", or just the ones that belong to the cu
+- Does this action show all "examples", or just the ones that belong to the
   currently signed-in user?
 - Which terminal handler is used to send a response?
 
@@ -271,7 +271,7 @@ Content-Type: application/json; charset=utf-8
       "title": "Between the World and Me",
       "author": "Ta-Nehisi Coates",
       "originalLanguage": "English",
-      "firstPublished": 1999
+      "firstPublished": 1999,
       "__v": 0
     },
     {
@@ -282,7 +282,8 @@ Content-Type: application/json; charset=utf-8
       "title": "Invisible Monsters",
       "author": "Chuck Palahniuk",
       "originalLanguage": "Spanish",
-      "firstPublished": 1843      "__v": 0
+      "firstPublished": 1843,
+      "__v": 0
     }
   ]
 }
@@ -324,7 +325,7 @@ Content-Type: application/json; charset=utf-8
     "title": "Between the World and Me",
     "author": "Ta-Nehisi Coates",
     "originalLanguage": "English",
-    "firstPublished": 1999    "__v": 0
+    "firstPublished": 1999,  "__v": 0
   }
 }
 ```
