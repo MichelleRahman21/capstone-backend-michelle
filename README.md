@@ -297,7 +297,7 @@ and password and it will create a user with those credentials.
 
 Run the load-books script like this:
 
-```
+```bash
 node scripts/load_books.js bob@website mypassword
 ```
 
@@ -305,7 +305,7 @@ node scripts/load_books.js bob@website mypassword
 
 ## Code-Along: `GET /books/:id`
 
-### Visitors to the client web application should be able to see any book without being logged in.
+**Visitors to the client web application should be able to see any book without being logged in.**
 
 You will need to write a route handler and a test script.
 
