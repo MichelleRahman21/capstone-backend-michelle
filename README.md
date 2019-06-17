@@ -62,7 +62,7 @@ curl --include localhost:4741
 Most apps need to do a bit more than always sending back "Hello world". To get
 some more exposure to Express, let's build out a minimal API in
 [lib/medium_size_server.js](lib/medium_size_server.js) that we can
-use to keep store books for a library. Because we haven't learned how
+use to store books for a library. Because we haven't learned how
 to integrate MongoDB (or other databases) into Express yet, we'll just store our
 data in memory.
 
@@ -73,7 +73,7 @@ Our app will have three routes available:
 - `POST /books`: accept JSON and create a book from it, then respond with
   the created book.
 
-Our API we'll need more functionality than the previous example. Nonetheless, we'll
+Our API will need more functionality than the previous example. Nonetheless, we'll
 utilize a lot of the same patterns. For example, what were those `req` and `res` parameters
 exactly?
 
