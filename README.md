@@ -104,7 +104,7 @@ after a request is received and before a response is sent. You can register a
 middleware with `app.use(myMiddlewareFunc)`. The order in which you pass them
 to `.use` determines the order in which they execute. A simple middleware might
 look like this:
-
+<!--Middleware responsabilities are almost everything, our client sends a request to the server and the server handles it and sends backa response. And in between those trnasitions we use middleware. And next is a function that middleware will use to do something next.  -->
 ```js
 const exampleMiddleware = function (req, res, next) {
   // do something with `req` or `res`

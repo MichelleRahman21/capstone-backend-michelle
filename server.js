@@ -7,6 +7,7 @@ const cors = require('cors')
 // require route files
 const exampleRoutes = require('./app/routes/example_routes')
 const userRoutes = require('./app/routes/user_routes')
+const bookRoutes = require('./app/routes/book_routes')
 
 // require error handling middleware
 const errorHandler = require('./lib/error_handler')
@@ -38,6 +39,7 @@ const port = process.env.PORT || 4741
 // of `Authorization: Token token=<token>` OR the Express convention of
 // `Authorization: Bearer <token>`
 app.use((req, res, next) => {
+  // It is saying like: whenever you are done, go on and move to the next middleware
   if (req.headers.authorization) {
     const auth = req.headers.authorization
     // if we find the Rails pattern in the header, replace it with the Express
@@ -60,6 +62,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // register route files
 app.use(exampleRoutes)
 app.use(userRoutes)
+app.use(bookRoutes)
 
 // register error handling middleware
 // note that this comes after the route middlewares, because it needs to be
@@ -67,9 +70,16 @@ app.use(userRoutes)
 app.use(errorHandler)
 
 // run API on designated port (4741 in this case)
+// const server =
 app.listen(port, () => {
   console.log('listening on port ' + port)
 })
-
+// const io = require('socket.io')(server)
+// // SETTING environment variable inside of express
+// app.set('socketio', io)
+//
+// io.on('connect', socket => {
+//   console.log('someone connected at socket', socket)
+// })
 // needed for testing
 module.exports = app

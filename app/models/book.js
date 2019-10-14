@@ -1,16 +1,21 @@
 const mongoose = require('mongoose')
 
-const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  hashedPassword: {
+const bookSchema = new mongoose.Schema({
+  title: {
     type: String,
     required: true
   },
-  token: String
+  author: {
+    type: String,
+    required: true
+  },
+  firstPublished: Number,
+  originalLanguage: String,
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
 }, {
   timestamps: true,
   toObject: {
@@ -23,4 +28,4 @@ const userSchema = new mongoose.Schema({
   }
 })
 
-module.exports = mongoose.model('User', userSchema)
+module.exports = mongoose.model('Book', bookSchema)
