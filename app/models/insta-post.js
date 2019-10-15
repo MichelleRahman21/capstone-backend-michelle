@@ -1,17 +1,14 @@
 const mongoose = require('mongoose')
 
 const instaPostSchema = new mongoose.Schema({
-  imagePost: [{
-    title: String,
-    url: mongoose.SchemaTypes.Url
-  }],
+  title: String,
   url: [{
     type: String,
     required: true
   }],
-  user: [{
-    type: mongoose.Schema.Type.ObjectId,
-    ref: 'Owner',
+  owner: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true
   }],
   tag: {

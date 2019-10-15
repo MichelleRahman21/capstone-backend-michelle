@@ -8,6 +8,7 @@ const cors = require('cors')
 const exampleRoutes = require('./app/routes/example_routes')
 const userRoutes = require('./app/routes/user_routes')
 const bookRoutes = require('./app/routes/book_routes')
+const instaPostRoutes = require('./app/routes/insta_post_routes')
 
 // require error handling middleware
 const errorHandler = require('./lib/error_handler')
@@ -18,6 +19,8 @@ const db = require('./config/db')
 
 // require configured passport authentication middleware
 const auth = require('./lib/auth')
+
+const serverDevPort = 4741
 
 // establish database connection
 mongoose.Promise = global.Promise
@@ -33,7 +36,7 @@ const app = express()
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:7165' }))
 
 // define port for API to run on
-const port = process.env.PORT || 4741
+const port = process.env.PORT || serverDevPort
 
 // this middleware makes it so the client can use the Rails convention
 // of `Authorization: Token token=<token>` OR the Express convention of
@@ -60,10 +63,10 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 // register route files
-app.use(exampleRoutes)
 app.use(userRoutes)
+app.use(exampleRoutes)
 app.use(bookRoutes)
-
+app.use(instaPostRoutes)
 // register error handling middleware
 // note that this comes after the route middlewares, because it needs to be
 // passed any error messages from them

@@ -14,7 +14,7 @@ const requireToken = passport.authenticate('bearer', { session: false })
 const router = express.Router()
 
 // GET
-router.get('/instaposts', (req, res, next) => {
+router.get('/instaposts/', (req, res, next) => {
   InstaPost.find()
     .then(instaPosts => {
       return instaPosts.map(instaPost => instaPost.toObject())
@@ -27,17 +27,19 @@ router.get('/instaposts/:id', (req, res, next) => {
   InstaPost.findById(req.params.id)
     .then(handle404)
     .then(instaPost => res.status(200).json({ instaPost: instaPost.toObject() }))
+    .catch(next)
 })
 // POST/CREATE
-router.post('/instaPosts', requireToken, (req, res, next) => {
-  req.file.owner = req.user.id
-    .then(mongooseResponse =>
-      res.status(201).json({ instaPost: mongooseResponse.toObject() }))
+router.post('/instaposts', requireToken, (req, res, next) => {
+  req.body.instapost.owner = req.user.id
+  InstaPost.create(req.body.instapost)
+    .then(instapost =>
+      res.status(201).json({ instaPost: instapost.toObject() }))
     .catch(next)
 })
 
 // UPDATE/PATCH
-router.patch('/instaPosts/:id', requireToken, removeBlanks, (req, res, next) => {
+router.patch('/instaposts/:id', requireToken, removeBlanks, (req, res, next) => {
   delete req.body.user
 
   InstaPost.findById(req.params.id)
@@ -45,19 +47,19 @@ router.patch('/instaPosts/:id', requireToken, removeBlanks, (req, res, next) => 
     .then(instaPost => {
       requireOwnership(req, instaPost)
 
-      return instaPost.updateOne(req.body.fileUpload)
+      return instaPost.updateOne(req.body.instaPost)
     })
     .then(() => res.sendStatus(204))
     .catch(next)
 })
 
 // DELETE/DESTORY
-router.delete('/instaPosts/:id', requireToken, (req, res, next) => {
+router.delete('/instaposts/:id', requireToken, (req, res, next) => {
   InstaPost.findById(req.params.id)
     .then(handle404)
     .then(instaPost => {
       requireOwnership(req, instaPost)
-      instaPost.deleteOne()
+      instaPost.remove()
     })
     .then(() => res.sendStatus(204))
     .catch(next)
