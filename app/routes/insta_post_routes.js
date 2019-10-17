@@ -4,14 +4,13 @@ const InstaPost = require('../models/insta-post')
 const multer = require('multer')
 const multerUpload = multer()
 
-const { s3Upload, s3Delete } = require('../../lib/s3Files.js')
+const { s3Upload } = require('../../lib/s3Files.js')
 
 const customErrors = require('../../lib/custom_errors')
 
 const handle404 = customErrors.handle404
 const requireOwnership = customErrors.requireOwnership
 
-const removeBlanks = require('../../lib/remove_blank_fields')
 const requireToken = passport.authenticate('bearer', { session: false })
 
 const router = express.Router()
@@ -46,20 +45,7 @@ router.post('/instaposts', requireToken, multerUpload.single('image'), (req, res
       res.status(201).json({ instaPost: instapost.toObject() }))
     .catch(next)
 })
-// UPDATE/PATCH
-// router.patch('/instaposts/:id', requireToken, removeBlanks, (req, res, next) => {
-//   delete req.body.user
-//
-//   InstaPost.findById(req.params.id)
-//     .then(handle404)
-//     .then(instapost => {
-//       requireOwnership(req, instapost)
-//
-//       return instapost.update(req.body.instapost)
-//     })
-//     .then(() => res.sendStatus(204))
-//     .catch(next)
-// })
+// PATCH
 router.patch('/instaposts/:id', requireToken, multerUpload.single('image'), (req, res, next) => {
   delete req.body.owner
   s3Upload(req.file)
