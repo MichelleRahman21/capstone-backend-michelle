@@ -1,7 +1,10 @@
 const express = require('express')
 const passport = require('passport')
-
 const InstaPost = require('../models/insta-post')
+const multer = require('multer')
+const multerUpload = multer()
+
+const { s3Upload, s3Delete } = require('../../lib/s3Files.js')
 
 const customErrors = require('../../lib/custom_errors')
 
@@ -30,27 +33,49 @@ router.get('/instaposts/:id', (req, res, next) => {
     .catch(next)
 })
 // POST/CREATE
-router.post('/instaposts', requireToken, (req, res, next) => {
-  req.body.instapost.owner = req.user.id
-  InstaPost.create(req.body.instapost)
+router.post('/instaposts', requireToken, multerUpload.single('image'), (req, res, next) => {
+  const instapost = req.body
+  instapost.owner = req.user.id
+  s3Upload(req.file)
+    .then(s3Response => InstaPost.create({
+      title: instapost.title,
+      url: s3Response.Location,
+      owner: instapost.owner
+    }))
     .then(instapost =>
       res.status(201).json({ instaPost: instapost.toObject() }))
     .catch(next)
 })
-
 // UPDATE/PATCH
-router.patch('/instaposts/:id', requireToken, removeBlanks, (req, res, next) => {
-  delete req.body.user
-
-  InstaPost.findById(req.params.id)
-    .then(handle404)
-    .then(instaPost => {
-      requireOwnership(req, instaPost)
-
-      return instaPost.updateOne(req.body.instaPost)
+// router.patch('/instaposts/:id', requireToken, removeBlanks, (req, res, next) => {
+//   delete req.body.user
+//
+//   InstaPost.findById(req.params.id)
+//     .then(handle404)
+//     .then(instapost => {
+//       requireOwnership(req, instapost)
+//
+//       return instapost.update(req.body.instapost)
+//     })
+//     .then(() => res.sendStatus(204))
+//     .catch(next)
+// })
+router.patch('/instaposts/:id', requireToken, multerUpload.single('image'), (req, res, next) => {
+  delete req.body.owner
+  s3Upload(req.file)
+    .then(s3Response => {
+      InstaPost.findById(req.params.id)
+        .then(handle404)
+        .then(instapost => {
+          requireOwnership(req, instapost)
+          return instapost.set({
+            title: req.body.title,
+            url: s3Response.Location
+          }).save()
+        })
+        .then(instapost => res.status(200).json({ instaPost: instapost.toObject() }))
+        .catch(next)
     })
-    .then(() => res.sendStatus(204))
-    .catch(next)
 })
 
 // DELETE/DESTORY
