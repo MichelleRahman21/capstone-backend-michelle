@@ -51,18 +51,26 @@ AWS S3 Bucket
 ### Deployment
 
 Github
+
 Heroku
 
 ### Front-end
 React Hooks
+
 JSX
+
 Bootrasp
+
 AJAX
+
 AWS
+
 
 ### Back-end
 Postman
+
 Express (Created 4RESTful routes for handling (GET, POST,PUT,PATCH and DELETE) requests)
+
 AWS
 
 ### Database
