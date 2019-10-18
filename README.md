@@ -40,8 +40,11 @@ AWS S3 Bucket
 
 ## Wireframes
 
-![Wireframe](https://i.imgur.com/Pd2SvL3.jpg)
+![Wireframe](https://i.imgur.com/m8dU72m.png)
 
+![Wireframe](https://i.imgur.com/jgYKgrF.png)
+
+![Wireframe](https://i.imgur.com/NpdHKe1.png)
 
 ## Tools
 
