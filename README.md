@@ -40,6 +40,7 @@ AWS S3 Bucket
 | DELETE | `/instaposts/:id`
 
 ## Wireframes
+
 ![Wireframe](https://i.imgur.com/Pd2SvL3.jpg)
 
 
